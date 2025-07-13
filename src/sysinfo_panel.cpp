@@ -38,20 +38,22 @@ std::vector<std::string> SysInfoPanel::themes = {
 
 static std::map<int32_t, uint32_t> sleepsec_to_dd_idx = {
   {-1, 0}, // never
-  {300, 1}, // 5 min
-  {600, 2}, // 10 min
-  {1800, 3}, // 30 min
-  {3600, 4}, // 1 hour
-  {18000, 5} // 5 hour
+  {30, 1}, // 30 sec
+  {60, 2}, // 1 min
+  {300, 3}, // 5 min
+  {600, 4}, // 10 min
+  {1800, 5}, // 30 min
+  {3600, 6}, // 1 hour
 };
 
 static std::map<std::string, uint32_t> sleep_label_to_sec = {
   {"Never", -1}, // never
+  {"30 Seconds", 30}, // 30 sec
+  {"1 Minute", 60}, // 1 min
   {"5 Minutes", 300}, // 5 min
   {"10 Minutes", 600}, // 10 min
   {"30 Minutes", 1800}, // 30 min
   {"1 Hour", 3600}, // 1 hour
-  {"5 Hours", 18000} // 5 hour
 };
 
 SysInfoPanel::SysInfoPanel()
@@ -95,7 +97,7 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_set_flex_align(left_cont, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
 
   lv_obj_clear_flag(right_cont, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_size(right_cont, LV_PCT(50), LV_PCT(100));  
+  lv_obj_set_size(right_cont, LV_PCT(50), LV_PCT(100));
   lv_obj_set_flex_flow(right_cont, LV_FLEX_FLOW_COLUMN);
   lv_obj_set_flex_align(right_cont, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
 
@@ -107,12 +109,13 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
   lv_obj_align(display_sleep_dd, LV_ALIGN_RIGHT_MID, 0, 0);
   lv_dropdown_set_options(display_sleep_dd,
-			  "Never\n"
-			  "5 Minutes\n"
+        "Never\n"
+        "30 Seconds\n"
+        "1 Minute\n"
+        "5 Minutes\n"
 			  "10 Minutes\n"
 			  "30 Minutes\n"
-			  "1 Hour\n"
-			  "5 Hours");
+			  "1 Hour");
 
   auto v = conf->get_json("/display_sleep_sec");
   if (!v.is_null()) {
@@ -124,7 +127,7 @@ SysInfoPanel::SysInfoPanel()
   }
   lv_obj_add_event_cb(display_sleep_dd, &SysInfoPanel::_handle_callback,
 		      LV_EVENT_VALUE_CHANGED, this);
-  
+
   lv_obj_set_size(ll_cont, LV_PCT(100), LV_SIZE_CONTENT);
   lv_obj_set_style_pad_all(ll_cont, 0, 0);
   l = lv_label_create(ll_cont);
@@ -220,7 +223,7 @@ SysInfoPanel::SysInfoPanel()
                       LV_EVENT_VALUE_CHANGED, this);
 
 
-  lv_obj_add_flag(back_btn.get_container(), LV_OBJ_FLAG_FLOATING);	
+  lv_obj_add_flag(back_btn.get_container(), LV_OBJ_FLAG_FLOATING);
   lv_obj_align(back_btn.get_container(), LV_ALIGN_BOTTOM_RIGHT, 0, 0);
 }
 

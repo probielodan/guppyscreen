@@ -16,7 +16,7 @@ namespace KUtils {
   std::string get_root_path(const std::string root_name);
 
   // path, width
-  std::pair<std::string, size_t> get_thumbnail(const std::string &gcode_file, json &j, double scale);
+  std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::string &gcode_file, json &j, double scale);
 
   std::string download_file(const std::string &root,
 			    const std::string &fname,

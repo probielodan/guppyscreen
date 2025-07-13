@@ -90,7 +90,7 @@ std::vector<std::string> State::get_extruders() {
 
   return extruders;
 }
-  
+
 std::vector<std::string> State::get_heaters() {
   std::lock_guard<std::mutex> guard(lock);
   auto &objects = data["/printer_objs/objects"_json_pointer];
@@ -116,8 +116,8 @@ std::vector<std::string> State::get_sensors() {
     for (auto &o : objects) {
       const std::string &obj_name = o.template get<std::string>();
       if (obj_name.rfind("temperature_sensor ", 0) == 0
-	  || obj_name.rfind("temperature_fan ", 0) == 0) {
-	sensors.push_back(obj_name);
+        || obj_name.rfind("temperature_fan ", 0) == 0) {
+        sensors.push_back(obj_name);
       }
     }
   }
@@ -253,7 +253,7 @@ json State::get_display_sensors() {
 
       color_idx++;
     }
-    
+
   }
 
   return display_sensors;
@@ -277,8 +277,8 @@ json State::get_display_fans() {
       display_fans[e] = fans_by_id[e];
     }
   }
-		    
-  // hack to allow output_pin defined fans		    
+
+  // hack to allow output_pin defined fans
   auto output_pins = get_output_pins();
   for (auto &e : output_pins) {
     if (fans_by_id.contains(e)) {
@@ -323,7 +323,7 @@ json State::get_display_leds() {
       display_leds[e] = leds_by_id[e];
     }
   }
-		    
+
   // hack to allow output_pin defined leds
   auto output_pins = get_output_pins();
   for (auto &e : output_pins) {
@@ -344,7 +344,7 @@ json State::get_display_leds() {
 	};
       }
     }
-    
+
     for (auto &e: leds) {
       size_t pos = e.find_last_of(' ');
       std::string display_name = KUtils::to_title(pos != std::string::npos

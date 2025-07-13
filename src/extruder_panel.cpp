@@ -63,32 +63,40 @@ ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
   }
 
   lv_obj_move_background(panel_cont);
-  lv_obj_clear_flag(panel_cont, LV_OBJ_FLAG_SCROLLABLE);  
+  lv_obj_clear_flag(panel_cont, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_set_size(panel_cont, LV_PCT(100), LV_PCT(100));
   lv_obj_set_style_pad_all(panel_cont, 0, 0);
 
-  lv_obj_set_size(rightside_btns_cont, LV_PCT(20), LV_PCT(100));  
+  lv_obj_set_size(rightside_btns_cont, LV_PCT(20), LV_PCT(100));
   lv_obj_set_flex_flow(rightside_btns_cont, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_flex_align(rightside_btns_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  lv_obj_set_flex_align(rightside_btns_cont, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
   lv_obj_clear_flag(rightside_btns_cont, LV_OBJ_FLAG_SCROLLABLE);
 
-  lv_obj_set_size(leftside_btns_cont, LV_PCT(20), LV_SIZE_CONTENT);
-  lv_obj_set_style_pad_row(leftside_btns_cont, 15, 0);
+  lv_obj_set_size(leftside_btns_cont, LV_PCT(20), LV_PCT(100));
+  // lv_obj_set_style_pad_row(leftside_btns_cont, 15, 0);
   lv_obj_set_flex_flow(leftside_btns_cont, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_flex_align(leftside_btns_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  lv_obj_set_flex_align(leftside_btns_cont, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
   lv_obj_clear_flag(leftside_btns_cont, LV_OBJ_FLAG_SCROLLABLE);
-  
-  spoolman_btn.disable();  
+
+  lv_obj_set_flex_grow(load_btn.get_container(), 1);
+  lv_obj_set_flex_grow(unload_btn.get_container(), 1);
+  lv_obj_set_flex_grow(cooldown_btn.get_container(), 1);
+  lv_obj_set_flex_grow(spoolman_btn.get_container(), 1);
+  lv_obj_set_flex_grow(extrude_btn.get_container(), 1);
+  lv_obj_set_flex_grow(retract_btn.get_container(), 1);
+  lv_obj_set_flex_grow(back_btn.get_container(), 1);
+
+  spoolman_btn.disable();
 
   static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(6), LV_GRID_FR(6), LV_GRID_FR(6),
     LV_GRID_TEMPLATE_LAST};
   static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(7), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
-  
+
   lv_obj_clear_flag(panel_cont, LV_OBJ_FLAG_SCROLLABLE);
-  
+
   lv_obj_set_grid_dsc_array(panel_cont, grid_main_col_dsc, grid_main_row_dsc);
   lv_obj_add_flag(extruder_temp.get_sensor(), LV_OBJ_FLAG_FLOATING);
-  lv_obj_align(extruder_temp.get_sensor(), LV_ALIGN_TOP_LEFT, 50, 0);
+  lv_obj_align(extruder_temp.get_sensor(), LV_ALIGN_TOP_LEFT, 20, 0);
 
   // lv_obj_set_size(extruder_temp.get_sensor(), 350, 60);
   // col 0
@@ -97,27 +105,27 @@ ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
   // lv_obj_set_grid_cell(unload_btn.get_container(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_START, 2, 2);
   // lv_obj_set_grid_cell(cooldown_btn.get_container(), LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_END, 2, 2);
 
-  lv_obj_set_grid_cell(leftside_btns_cont, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 1, 3);
-  
+  lv_obj_set_grid_cell(leftside_btns_cont, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 3);
+
   // col 1
   // lv_obj_set_grid_cell(extruder_temp.get_sensor(), LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 0, 1);
-  lv_obj_set_grid_cell(speed_selector.get_container(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
-  lv_obj_set_grid_cell(length_selector.get_container(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 2, 1);
-  lv_obj_set_grid_cell(temp_selector.get_container(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 3, 1);
-  
+  lv_obj_set_grid_cell(speed_selector.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  lv_obj_set_grid_cell(length_selector.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+  lv_obj_set_grid_cell(temp_selector.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
+
   // col 2
   // lv_obj_set_grid_cell(spoolman_btn.get_container(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 0, 2);
   // lv_obj_set_grid_cell(retract_btn.get_container(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_END, 0, 2);
   // lv_obj_set_grid_cell(extrude_btn.get_container(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 2, 2);
   // lv_obj_set_grid_cell(back_btn.get_container(), LV_GRID_ALIGN_END, 2, 1, LV_GRID_ALIGN_END, 2, 2);
 
-  lv_obj_set_grid_cell(rightside_btns_cont, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 0, 4);
+  lv_obj_set_grid_cell(rightside_btns_cont, LV_GRID_ALIGN_STRETCH, 2, 1, LV_GRID_ALIGN_STRETCH, 0, 4);
   // lv_obj_set_grid_cell(retract_btn.get_container(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_END, 0, 2);
   // lv_obj_set_grid_cell(extrude_btn.get_container(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 2, 2);
   // lv_obj_set_grid_cell(back_btn.get_container(), LV_GRID_ALIGN_END, 2, 1, LV_GRID_ALIGN_END, 2, 2);
-  
 
-  ws.register_notify_update(this);    
+
+  ws.register_notify_update(this);
 }
 
 ExtruderPanel::~ExtruderPanel() {
@@ -142,9 +150,9 @@ void ExtruderPanel::consume(json& j) {
     int target = target_value.template get<int>();
     extruder_temp.update_target(target);
   }
-  
+
   auto temp_value = j["/params/0/extruder/temperature"_json_pointer];
-  if (!temp_value.is_null()) {   
+  if (!temp_value.is_null()) {
     int value = temp_value.template get<int>();
     extruder_temp.update_value(value);
   }
@@ -173,7 +181,7 @@ void ExtruderPanel::handle_callback(lv_event_t *e) {
 		  fmt::ptr(temp_selector.get_selector()),
 		  fmt::ptr(length_selector.get_selector()),
 		  fmt::ptr(speed_selector.get_selector()));
-    
+
   } else if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
     lv_obj_t *btn = lv_event_get_current_target(e);
 

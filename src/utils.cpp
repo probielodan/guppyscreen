@@ -56,68 +56,75 @@ namespace KUtils {
     return "";
   }
 
-  std::pair<std::string, size_t> get_thumbnail(const std::string &gcode_file, json &j, double scale) {
-    auto &thumbs = j["/result/thumbnails"_json_pointer];
-    if (!thumbs.is_null() && !thumbs.empty()) {
-      // assume square, look for closest to 300x300
-      auto scaled_width = scale * 300;
-      spdlog::debug("using thumb at scaled width {}", scaled_width);
-      uint32_t closest_index = 0;
-      size_t thumb_width = 0;
-      auto width = thumbs.at(0)["width"].is_number()
-	? thumbs.at(0)["width"].template get<int>()
-	: std::stoi(thumbs.at(0)["width"].template get<std::string>());
-      int closest = std::abs(scaled_width - width);
-      for (int i = 0; i < thumbs.size(); i++) {
-	width = thumbs.at(i)["width"].is_number()
-	  ? thumbs.at(i)["width"].template get<int>()
-	  : std::stoi(thumbs.at(i)["width"].template get<std::string>());
-	int cur_diff = std::abs(scaled_width - width);
-	if (cur_diff < closest) {
-	  closest = cur_diff;
-	  closest_index = i;
-	  thumb_width = width;
-	}
+std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::string &gcode_file, json &j, double scale) {
+  auto &thumbs = j["/result/thumbnails"_json_pointer];
+  if (!thumbs.is_null() && !thumbs.empty()) {
+    auto scaled_width = scale * 300;
+    spdlog::debug("using thumb at scaled width {}", scaled_width);
+    uint32_t closest_index = 0;
+    size_t thumb_width = 0;
+    size_t thumb_height = 0;
+
+    auto width = thumbs.at(0)["width"].is_number()
+      ? thumbs.at(0)["width"].template get<int>()
+      : std::stoi(thumbs.at(0)["width"].template get<std::string>());
+
+    auto height = thumbs.at(0)["height"].is_number()
+      ? thumbs.at(0)["height"].template get<int>()
+      : std::stoi(thumbs.at(0)["height"].template get<std::string>());
+
+    int closest = std::abs(scaled_width - width);
+    for (int i = 0; i < thumbs.size(); i++) {
+      width = thumbs.at(i)["width"].is_number()
+        ? thumbs.at(i)["width"].template get<int>()
+        : std::stoi(thumbs.at(i)["width"].template get<std::string>());
+      height = thumbs.at(i)["height"].is_number()
+        ? thumbs.at(i)["height"].template get<int>()
+        : std::stoi(thumbs.at(i)["height"].template get<std::string>());
+
+      int cur_diff = std::abs(scaled_width - width);
+      if (cur_diff < closest) {
+        closest = cur_diff;
+        closest_index = i;
+        thumb_width = width;
+        thumb_height = height;
       }
-
-      auto &thumb = thumbs.at(closest_index);
-      spdlog::debug("using thumb at index {}, {}", closest_index, thumbs.dump());
-
-      // metadata thumbnail paths are relative to the current gcode file directory
-      std::string relative_path = thumb["relative_path"].template get<std::string>();
-      size_t found = gcode_file.find_last_of("/\\");
-      if (found != std::string::npos) {
-	relative_path = gcode_file.substr(0, found + 1) + relative_path;
-      }
-
-      Config *conf = Config::get_instance();
-      std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
-      std::string fname = relative_path.substr(relative_path.find_last_of("/\\") + 1);
-      std::string fullpath = fmt::format("{}/{}", conf->get<std::string>("/thumbnail_path"), fname);
-    
-      // download thumbnail
-      if (is_running_local()) {
-	spdlog::debug("running locally, skipping thumbnail downloads");
-	auto gcode_root = get_root_path("gcodes");
-	fullpath = fmt::format("{}/{}", gcode_root, relative_path);
-      } else {
-	std::string thumb_url = fmt::format("http://{}:{}/server/files/gcodes/{}",
-					    df_host,
-					    conf->get<uint32_t>(conf->df() + "moonraker_port"),
-					    HUrl::escape(relative_path));
-
-
-	// threadpool this
-	spdlog::debug("thumb url {}", thumb_url);
-	auto size = requests::downloadFile(thumb_url.c_str(), fullpath.c_str());
-	spdlog::trace("downloaded size {}", size);
-      }
-
-      return std::make_pair(fullpath, thumb_width);
     }
 
-    return std::make_pair("", 0);
+    auto &thumb = thumbs.at(closest_index);
+    spdlog::debug("using thumb at index {}, {}", closest_index, thumbs.dump());
+
+    std::string relative_path = thumb["relative_path"].template get<std::string>();
+    size_t found = gcode_file.find_last_of("/\\");
+    if (found != std::string::npos) {
+      relative_path = gcode_file.substr(0, found + 1) + relative_path;
+    }
+
+    Config *conf = Config::get_instance();
+    std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
+    std::string fname = relative_path.substr(relative_path.find_last_of("/\\") + 1);
+    std::string fullpath = fmt::format("{}/{}", conf->get<std::string>("/thumbnail_path"), fname);
+
+    if (is_running_local()) {
+      spdlog::debug("running locally, skipping thumbnail downloads");
+      auto gcode_root = get_root_path("gcodes");
+      fullpath = fmt::format("{}/{}", gcode_root, relative_path);
+    } else {
+      std::string thumb_url = fmt::format("http://{}:{}/server/files/gcodes/{}",
+                                         df_host,
+                                         conf->get<uint32_t>(conf->df() + "moonraker_port"),
+                                         HUrl::escape(relative_path));
+      spdlog::debug("thumb url {}", thumb_url);
+      auto size = requests::downloadFile(thumb_url.c_str(), fullpath.c_str());
+      spdlog::trace("downloaded size {}", size);
+    }
+
+    return std::make_pair(fullpath, std::make_pair(thumb_width, thumb_height));
   }
+
+  return std::make_pair("", std::make_pair(0, 0));
+}
+
 
   std::string download_file(const std::string &root,
 			    const std::string &fname,
@@ -237,7 +244,7 @@ namespace KUtils {
       os << p.tm_min << "m ";
 
     os << p.tm_sec << "s";
-    
+
     return os.str();
   }
 

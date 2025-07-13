@@ -7,6 +7,12 @@
 
 #include <ctime>
 
+enum class SensorType {
+  Heater,
+  TempFan,
+  Sensor
+};
+
 class SensorContainer {
  public:
   SensorContainer(KWebSocketClient &c,
@@ -14,13 +20,14 @@ class SensorContainer {
 		  const void *img,
 		  const char *text,
 		  lv_color_t color,
-		  bool editable,
-		  bool show_target,
+      bool editable,
+      bool show_target,
 		  Numpad &np,
 		  std::string name,
 		  lv_obj_t *chart,
-		  lv_chart_series_t *chart_series);
-		  
+		  lv_chart_series_t *chart_series,
+      SensorType type = SensorType::Heater);
+
   SensorContainer(KWebSocketClient &c,
 		  lv_obj_t *parent,
 		  const void *img,
@@ -32,8 +39,9 @@ class SensorContainer {
 		  Numpad &np,
 		  std::string name,
 		  lv_obj_t *chart,
-		  lv_chart_series_t *chart_series);
-  
+      lv_chart_series_t *chart_series,
+      SensorType type = SensorType::Heater);
+
   ~SensorContainer();
 
   lv_obj_t *get_sensor();
@@ -62,7 +70,7 @@ class SensorContainer {
   lv_obj_t *chart;
   lv_chart_series_t *series;
   std::time_t last_updated_ts;
-  
+  SensorType type;
 };
 
 #endif // __SENSOR_CONTAINER_H__

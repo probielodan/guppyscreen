@@ -4,7 +4,7 @@
 #ifndef OS_ANDROID
   #include "lv_drivers/display/fbdev.h"
   #include "lv_drivers/indev/evdev.h"
-  
+
   #include "spdlog/sinks/rotating_file_sink.h"
   #include "spdlog/sinks/stdout_sinks.h"
 
@@ -55,8 +55,8 @@ GuppyScreen *GuppyScreen::init(std::function<void(lv_color_t, lv_color_t)> hal_i
   Config *conf = Config::get_instance();
   const std::string ll_path = conf->df() + "log_level";
   auto ll = spdlog::level::from_str(
-      conf->get_json("/printers").empty() 
-      ? "debug" 
+      conf->get_json("/printers").empty()
+      ? "debug"
       : conf->get<std::string>(ll_path));
 
   auto selected_theme = conf->get_json("/theme").empty()
@@ -283,18 +283,13 @@ void GuppyScreen::refresh_theme() {
 
 /*Set in lv_conf.h as `LV_TICK_CUSTOM_SYS_TIME_EXPR`*/
 uint32_t custom_tick_get(void) {
-  static uint64_t start_ms = 0;
-  if (start_ms == 0) {
-    struct timeval tv_start;
-    gettimeofday(&tv_start, NULL);
-    start_ms = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
+  static auto start = std::chrono::steady_clock::now();
+  auto now = std::chrono::steady_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+
+  // Detect and log overflow
+  if (duration > std::numeric_limits<uint32_t>::max()) {
+    spdlog::warn("Custom tick duration exceeds uint32_t max value.");
   }
-
-  struct timeval tv_now;
-  gettimeofday(&tv_now, NULL);
-  uint64_t now_ms;
-  now_ms = (tv_now.tv_sec * 1000000 + tv_now.tv_usec) / 1000;
-
-  uint32_t time_ms = now_ms - start_ms;
-  return time_ms;
+  return static_cast<uint32_t>(duration);
 }

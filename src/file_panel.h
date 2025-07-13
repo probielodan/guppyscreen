@@ -15,12 +15,13 @@ class FilePanel {
   ~FilePanel();
 
   void foreground();
-  void refresh_view(json &j, const std::string &gcode_path);  
+  void refresh_view(json &j, const std::string &gcode_path);
   lv_obj_t *get_container();
   const char* get_thumbnail_path();
 
  private:
   lv_obj_t *file_cont;
+  lv_obj_t *thumbnail_container;
   lv_obj_t *thumbnail;
   lv_obj_t *fname_label;
   lv_obj_t *detail_label;

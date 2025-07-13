@@ -70,7 +70,7 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   , heater_bed_target(-1)
 {
   lv_obj_move_background(status_cont);
-  lv_obj_clear_flag(status_cont, LV_OBJ_FLAG_SCROLLABLE);  
+  lv_obj_clear_flag(status_cont, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_set_size(status_cont, LV_PCT(100), LV_PCT(100));
 
   static lv_coord_t grid_main_row_dsc_detail[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
@@ -78,16 +78,16 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   static lv_coord_t grid_main_col_dsc_detail[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   lv_obj_set_grid_dsc_array(detail_cont, grid_main_col_dsc_detail, grid_main_row_dsc_detail);
 
-  lv_obj_clear_flag(detail_cont, LV_OBJ_FLAG_SCROLLABLE);  
+  lv_obj_clear_flag(detail_cont, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_set_size(detail_cont, LV_PCT(60), LV_PCT(60));
 
   //detail containter row 1
   lv_obj_set_grid_cell(extruder_temp.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
-  lv_obj_set_grid_cell(bed_temp.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);  
+  lv_obj_set_grid_cell(bed_temp.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
 
   //detail containter row 2
   lv_obj_set_grid_cell(print_speed.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
-  lv_obj_set_grid_cell(z_offset.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);  
+  lv_obj_set_grid_cell(z_offset.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 
   //detail containter row 3
   lv_obj_set_grid_cell(flow_rate.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
@@ -99,17 +99,24 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
 
   //detail containter row 5
   lv_obj_set_grid_cell(time_left.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 4, 1);
-  // lv_obj_set_grid_cell(fan2.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 4, 1);  
-  
+  // lv_obj_set_grid_cell(fan2.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 4, 1);
+
   static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
   static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
 
   lv_obj_set_grid_dsc_array(status_cont, grid_main_col_dsc, grid_main_row_dsc);
 
   lv_obj_set_size(buttons_cont, LV_PCT(100), LV_PCT(40));
-  lv_obj_clear_flag(buttons_cont, LV_OBJ_FLAG_SCROLLABLE);  
+  lv_obj_clear_flag(buttons_cont, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_set_flex_flow(buttons_cont, LV_FLEX_FLOW_ROW);
-  lv_obj_set_flex_align(buttons_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+  lv_obj_set_flex_align(buttons_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+  lv_obj_set_flex_grow(finetune_btn.get_container(), 1);
+  lv_obj_set_flex_grow(pause_btn.get_container(), 1);
+  lv_obj_set_flex_grow(resume_btn.get_container(), 1);
+  lv_obj_set_flex_grow(cancel_btn.get_container(), 1);
+  lv_obj_set_flex_grow(emergency_btn.get_container(), 1);
+  lv_obj_set_flex_grow(back_btn.get_container(), 1);
 
   lv_obj_set_style_pad_all(pbar_cont, 0, 0);
   lv_obj_set_size(pbar_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
@@ -134,11 +141,11 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
 
   // row 1
   lv_obj_set_grid_cell(thumbnail_cont, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-  lv_obj_set_grid_cell(detail_cont, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);  
+  lv_obj_set_grid_cell(detail_cont, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
   //row 2
-  lv_obj_set_grid_cell(buttons_cont, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 1, 1);
-  
+  lv_obj_set_grid_cell(buttons_cont, LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_STRETCH, 1, 1);
+
   ws.register_notify_update(this);
 }
 
@@ -190,7 +197,7 @@ void PrintStatusPanel::init(json &fans) {
     std::string fan_name = f.key();
 
     auto fan_value = State::get_instance()
-      ->get_data(json::json_pointer(fmt::format("/printer_state/{}/value", fan_name)));    
+      ->get_data(json::json_pointer(fmt::format("/printer_state/{}/value", fan_name)));
     if (!fan_value.is_null()) {
       int v = static_cast<int>(fan_value.template get<double>() * 100);
       fan_speeds.insert({fan_name, v});
@@ -221,7 +228,7 @@ void PrintStatusPanel::init(json &fans) {
   } else {
     mini_print_status.show();
   }
-  
+
 }
 
 void PrintStatusPanel::populate() {
@@ -267,7 +274,7 @@ void PrintStatusPanel::handle_metadata(const std::string &gcode_file, json &j) {
   auto eta = j["/result/estimated_time"_json_pointer];
   if (!eta.is_null()) {
     estimated_time_s = static_cast<uint32_t>(eta.template get<float>());
-    spdlog::trace("updated eta {}", estimated_time_s);        
+    spdlog::trace("updated eta {}", estimated_time_s);
 
     json &v = State::get_instance()->get_data("/printer_state/print_stats/print_duration"_json_pointer);
     if (!v.is_null()) {
@@ -290,10 +297,10 @@ void PrintStatusPanel::handle_metadata(const std::string &gcode_file, json &j) {
     const std::string img_path = "A:" + fullpath;
 
     auto screen_width = lv_disp_get_physical_hor_res(NULL);
-    uint32_t normalized_thumb_scale = ((0.34 * (double)screen_width) / (double)thumb_detail.second) * 256;
+    uint32_t normalized_thumb_scale = ((0.34 * (double)screen_width) / (double)thumb_detail.second.first) * 256;
     lv_img_set_src(thumbnail, img_path.c_str());
     lv_img_set_zoom(thumbnail, normalized_thumb_scale);
-    mini_print_status.update_img(img_path, thumb_detail.second);
+    mini_print_status.update_img(img_path, thumb_detail.second.first);
   }
 }
 
@@ -329,8 +336,8 @@ void PrintStatusPanel::consume(json &j) {
   v = j["/params/0/heater_bed/target"_json_pointer];
   if (!v.is_null()) {
     heater_bed_target = v.template get<int>();
-  }  
-  
+  }
+
   v = j["/params/0/extruder/temperature"_json_pointer];
   if (!v.is_null()) {
     if (extruder_target > 0) {
@@ -355,7 +362,7 @@ void PrintStatusPanel::consume(json &j) {
     int s = static_cast<int>(speed.template get<double>());
     print_speed.update_label((std::to_string(s) + " mm/s").c_str());
   }
-  
+
   // zoffset
   v = j["/params/0/gcode_move/homing_origin/2"_json_pointer];
   if (!v.is_null()) {
@@ -411,13 +418,13 @@ void PrintStatusPanel::consume(json &j) {
     if (is_paused) {
       resume_btn.enable();
       lv_obj_clear_flag(resume_btn.get_container(), LV_OBJ_FLAG_HIDDEN);
-      
+
       pause_btn.disable();
       lv_obj_add_flag(pause_btn.get_container(), LV_OBJ_FLAG_HIDDEN);
 
     } else {
       pause_btn.enable();
-      lv_obj_clear_flag(pause_btn.get_container(), LV_OBJ_FLAG_HIDDEN);      
+      lv_obj_clear_flag(pause_btn.get_container(), LV_OBJ_FLAG_HIDDEN);
 
       resume_btn.disable();
       lv_obj_add_flag(resume_btn.get_container(), LV_OBJ_FLAG_HIDDEN);

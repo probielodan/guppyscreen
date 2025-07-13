@@ -76,10 +76,10 @@ BeltsCalibrationPanel::BeltsCalibrationPanel(KWebSocketClient &c, std::mutex &l)
 
   lv_obj_add_event_cb(excite_slider, &BeltsCalibrationPanel::_handle_update_slider,
 		      LV_EVENT_VALUE_CHANGED, this);
-  
+
   lv_obj_align_to(excite_label, excite_slider, LV_ALIGN_BOTTOM_MID, 0, 35 * hscale);
   lv_label_set_text(excite_label, "1 hz");
-  
+
   lv_dropdown_set_options(excite_dd, fmt::format("{}", fmt::join(axes, "\n")).c_str());
   lv_obj_align(excite_dd, LV_ALIGN_RIGHT_MID, 0, 0);
 
@@ -87,9 +87,14 @@ BeltsCalibrationPanel::BeltsCalibrationPanel(KWebSocketClient &c, std::mutex &l)
   lv_obj_set_flex_align(button_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
   lv_obj_set_size(button_cont, LV_PCT(100), LV_SIZE_CONTENT);
 
+  lv_obj_set_flex_grow(calibrate_btn.get_container(), 1);
+  lv_obj_set_flex_grow(excite_btn.get_container(), 1);
+  lv_obj_set_flex_grow(emergency_btn.get_container(), 1);
+  lv_obj_set_flex_grow(back_btn.get_container(), 1);
+
   static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(4), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
   static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-  
+
   lv_obj_set_grid_dsc_array(cont, grid_main_col_dsc, grid_main_row_dsc);
 
   lv_obj_set_grid_cell(graph_cont, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_START, 0, 1);
@@ -101,7 +106,7 @@ BeltsCalibrationPanel::BeltsCalibrationPanel(KWebSocketClient &c, std::mutex &l)
   ws.register_method_callback("notify_gcode_response",
 			      "BeltsCalibrationPanel",
 			      [this](json& d) { this->handle_macro_response(d); });
-  
+
 }
 
 BeltsCalibrationPanel::~BeltsCalibrationPanel() {
@@ -132,10 +137,10 @@ void BeltsCalibrationPanel::handle_callback(lv_event_t *event) {
 
     // ws.gcode_script(fmt::format("GUPPY_BELTS_SHAPER_CALIBRATION PNG_OUT_PATH={} PNG_WIDTH={} PNG_HEIGHT={} FREQ_START=5 FREQ_END=10",
     // 				png_path, screen_width, screen_height));
-    
+
 
     lv_obj_add_flag(graph, LV_OBJ_FLAG_HIDDEN);
-    lv_img_set_src(graph, NULL);    
+    lv_img_set_src(graph, NULL);
     lv_obj_invalidate(graph);
     lv_obj_clear_flag(spinner, LV_OBJ_FLAG_HIDDEN);
     lv_obj_move_foreground(spinner);
@@ -166,16 +171,16 @@ void BeltsCalibrationPanel::handle_image_clicked(lv_event_t *e) {
       if (image_fullsized) {
 	lv_img_set_zoom(graph, 100);
 	lv_obj_set_size(graph_cont, LV_PCT(50), LV_PCT(50));
-	lv_obj_clear_flag(graph_cont, LV_OBJ_FLAG_FLOATING);	
-	
+	lv_obj_clear_flag(graph_cont, LV_OBJ_FLAG_FLOATING);
+
       } else {
 	lv_img_set_zoom(graph, LV_IMG_ZOOM_NONE);
 	lv_obj_set_size(graph_cont, LV_PCT(100), LV_PCT(100));
 	lv_obj_add_flag(graph_cont, LV_OBJ_FLAG_FLOATING);
       }
-      lv_obj_move_foreground(graph_cont);      
+      lv_obj_move_foreground(graph_cont);
       image_fullsized = !image_fullsized;
-    } 
+    }
   }
 }
 
@@ -190,7 +195,7 @@ void BeltsCalibrationPanel::handle_macro_response(json &j) {
       auto config_root = KUtils::get_root_path("config");
       auto png_path = fmt::format("{}/{}", config_root.length() > 0 ? config_root : "/tmp" , BELTS_PNG);
 
-      png_path = 
+      png_path =
 	fmt::format("A:{}", KUtils::is_running_local()
 		    ? png_path
 		    : KUtils::download_file("config", BELTS_PNG, Config::get_instance()->get_thumbnail_path()));
