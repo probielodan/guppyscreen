@@ -28,8 +28,8 @@ namespace KUtils {
     if (!v.is_null()) {
       std::string homed_axes = v.template get<std::string>();
       return homed_axes.find("x") != std::string::npos
-	&& homed_axes.find("y") != std::string::npos
-	&& homed_axes.find("z") != std::string::npos;
+        && homed_axes.find("y") != std::string::npos
+        && homed_axes.find("z") != std::string::npos;
     }
     return false;
   }
@@ -44,9 +44,9 @@ namespace KUtils {
     auto roots = State::get_instance()->get_data("/roots"_json_pointer);
     json filtered;
     std::copy_if(roots.begin(), roots.end(),
-		 std::back_inserter(filtered), [&root_name](const json& item) {
-		   return item.contains("name") && item["name"] == root_name;
-		 });
+      std::back_inserter(filtered), [&root_name](const json &item) {
+        return item.contains("name") && item["name"] == root_name;
+      });
 
     spdlog::trace("roots {}, filtered {}", roots.dump(), filtered.dump());
     if (!filtered.empty()) {
@@ -56,93 +56,93 @@ namespace KUtils {
     return "";
   }
 
-std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::string &gcode_file, json &j, double scale) {
-  auto &thumbs = j["/result/thumbnails"_json_pointer];
-  if (!thumbs.is_null() && !thumbs.empty()) {
-    auto scaled_width = scale * 300;
-    spdlog::debug("using thumb at scaled width {}", scaled_width);
-    uint32_t closest_index = 0;
-    size_t thumb_width = 0;
-    size_t thumb_height = 0;
+  std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::string &gcode_file, json &j, double scale) {
+    auto &thumbs = j["/result/thumbnails"_json_pointer];
+    if (!thumbs.is_null() && !thumbs.empty()) {
+      auto scaled_width = scale * 300;
+      spdlog::debug("using thumb at scaled width {}", scaled_width);
+      uint32_t closest_index = 0;
+      size_t thumb_width = 0;
+      size_t thumb_height = 0;
 
-    auto width = thumbs.at(0)["width"].is_number()
-      ? thumbs.at(0)["width"].template get<int>()
-      : std::stoi(thumbs.at(0)["width"].template get<std::string>());
+      auto width = thumbs.at(0)["width"].is_number()
+        ? thumbs.at(0)["width"].template get<int>()
+        : std::stoi(thumbs.at(0)["width"].template get<std::string>());
 
-    auto height = thumbs.at(0)["height"].is_number()
-      ? thumbs.at(0)["height"].template get<int>()
-      : std::stoi(thumbs.at(0)["height"].template get<std::string>());
+      auto height = thumbs.at(0)["height"].is_number()
+        ? thumbs.at(0)["height"].template get<int>()
+        : std::stoi(thumbs.at(0)["height"].template get<std::string>());
 
-    int closest = std::abs(scaled_width - width);
-    for (int i = 0; i < thumbs.size(); i++) {
-      width = thumbs.at(i)["width"].is_number()
-        ? thumbs.at(i)["width"].template get<int>()
-        : std::stoi(thumbs.at(i)["width"].template get<std::string>());
-      height = thumbs.at(i)["height"].is_number()
-        ? thumbs.at(i)["height"].template get<int>()
-        : std::stoi(thumbs.at(i)["height"].template get<std::string>());
+      int closest = std::abs(scaled_width - width);
+      for (int i = 0; i < thumbs.size(); i++) {
+        width = thumbs.at(i)["width"].is_number()
+          ? thumbs.at(i)["width"].template get<int>()
+          : std::stoi(thumbs.at(i)["width"].template get<std::string>());
+        height = thumbs.at(i)["height"].is_number()
+          ? thumbs.at(i)["height"].template get<int>()
+          : std::stoi(thumbs.at(i)["height"].template get<std::string>());
 
-      int cur_diff = std::abs(scaled_width - width);
-      if (cur_diff < closest) {
-        closest = cur_diff;
-        closest_index = i;
-        thumb_width = width;
-        thumb_height = height;
+        int cur_diff = std::abs(scaled_width - width);
+        if (cur_diff < closest) {
+          closest = cur_diff;
+          closest_index = i;
+          thumb_width = width;
+          thumb_height = height;
+        }
       }
+
+      auto &thumb = thumbs.at(closest_index);
+      spdlog::debug("using thumb at index {}, {}", closest_index, thumbs.dump());
+
+      std::string relative_path = thumb["relative_path"].template get<std::string>();
+      size_t found = gcode_file.find_last_of("/\\");
+      if (found != std::string::npos) {
+        relative_path = gcode_file.substr(0, found + 1) + relative_path;
+      }
+
+      Config *conf = Config::get_instance();
+      std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
+      std::string fname = relative_path.substr(relative_path.find_last_of("/\\") + 1);
+      std::string fullpath = fmt::format("{}/{}", conf->get<std::string>("/thumbnail_path"), fname);
+
+      if (is_running_local()) {
+        spdlog::debug("running locally, skipping thumbnail downloads");
+        auto gcode_root = get_root_path("gcodes");
+        fullpath = fmt::format("{}/{}", gcode_root, relative_path);
+      } else {
+        std::string thumb_url = fmt::format("http://{}:{}/server/files/gcodes/{}",
+          df_host,
+          conf->get<uint32_t>(conf->df() + "moonraker_port"),
+          HUrl::escape(relative_path));
+        spdlog::debug("thumb url {}", thumb_url);
+        auto size = requests::downloadFile(thumb_url.c_str(), fullpath.c_str());
+        spdlog::trace("downloaded size {}", size);
+      }
+
+      return std::make_pair(fullpath, std::make_pair(thumb_width, thumb_height));
     }
 
-    auto &thumb = thumbs.at(closest_index);
-    spdlog::debug("using thumb at index {}, {}", closest_index, thumbs.dump());
-
-    std::string relative_path = thumb["relative_path"].template get<std::string>();
-    size_t found = gcode_file.find_last_of("/\\");
-    if (found != std::string::npos) {
-      relative_path = gcode_file.substr(0, found + 1) + relative_path;
-    }
-
-    Config *conf = Config::get_instance();
-    std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
-    std::string fname = relative_path.substr(relative_path.find_last_of("/\\") + 1);
-    std::string fullpath = fmt::format("{}/{}", conf->get<std::string>("/thumbnail_path"), fname);
-
-    if (is_running_local()) {
-      spdlog::debug("running locally, skipping thumbnail downloads");
-      auto gcode_root = get_root_path("gcodes");
-      fullpath = fmt::format("{}/{}", gcode_root, relative_path);
-    } else {
-      std::string thumb_url = fmt::format("http://{}:{}/server/files/gcodes/{}",
-                                         df_host,
-                                         conf->get<uint32_t>(conf->df() + "moonraker_port"),
-                                         HUrl::escape(relative_path));
-      spdlog::debug("thumb url {}", thumb_url);
-      auto size = requests::downloadFile(thumb_url.c_str(), fullpath.c_str());
-      spdlog::trace("downloaded size {}", size);
-    }
-
-    return std::make_pair(fullpath, std::make_pair(thumb_width, thumb_height));
+    return std::make_pair("", std::make_pair(0, 0));
   }
-
-  return std::make_pair("", std::make_pair(0, 0));
-}
 
 
   std::string download_file(const std::string &root,
-			    const std::string &fname,
-			    const std::string &dest) {
+    const std::string &fname,
+    const std::string &dest) {
 
     auto filename = fs::path(fname).filename();
     auto dest_fullpath = fs::path(dest) / filename;
 
     spdlog::trace("root {}, fname {}, base filename {}, dest_fp {}", root, fname,
-		  filename.string(), dest_fullpath.string());
+      filename.string(), dest_fullpath.string());
     Config *conf = Config::get_instance();
     std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
 
     std::string file_url = fmt::format("http://{}:{}/server/files/{}/{}",
-					df_host,
-					conf->get<uint32_t>(conf->df() + "moonraker_port"),
-					root,
-					HUrl::escape(fname));
+      df_host,
+      conf->get<uint32_t>(conf->df() + "moonraker_port"),
+      root,
+      HUrl::escape(fname));
     // threadpool this
     spdlog::debug("file url {}", file_url);
     auto size = requests::downloadFile(file_url.c_str(), dest_fullpath.c_str());
@@ -157,9 +157,9 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
     struct ifaddrs *addrs;
     getifaddrs(&addrs);
     for (struct ifaddrs *addr = addrs; addr != nullptr; addr = addr->ifa_next) {
-        if (addr->ifa_addr && addr->ifa_addr->sa_family == AF_PACKET) {
-	  ifaces.push_back(addr->ifa_name);
-        }
+      if (addr->ifa_addr && addr->ifa_addr->sa_family == AF_PACKET) {
+        ifaces.push_back(addr->ifa_name);
+      }
     }
 
     freeifaddrs(addrs);
@@ -170,13 +170,13 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
   std::string interface_ip(const std::string &interface) {
     int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
-    struct ifreq ifr{};
+    struct ifreq ifr {};
     strcpy(ifr.ifr_name, interface.c_str());
     ioctl(fd, SIOCGIFADDR, &ifr);
     close(fd);
 
     char ip[INET_ADDRSTRLEN];
-    strcpy(ip, inet_ntoa(((sockaddr_in *) &ifr.ifr_addr)->sin_addr));
+    strcpy(ip, inet_ntoa(((sockaddr_in *)&ifr.ifr_addr)->sin_addr));
     return ip;
   }
 
@@ -198,7 +198,7 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
     std::istringstream iss(s);
     std::string item;
     while (std::getline(iss, item, delim)) {
-        *result++ = item;
+      *result++ = item;
     }
   }
 
@@ -215,10 +215,10 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
 
   std::string to_title(std::string s) {
     bool last = true;
-    for (char& c : s) {
+    for (char &c : s) {
       c = last ? std::toupper(c) : std::tolower(c);
       if (c == '_') {
-	c = ' ';
+        c = ' ';
       }
 
       last = std::isspace(c);
@@ -228,9 +228,9 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
 
 
   std::string eta_string(int64_t s) {
-    time_t seconds (s);
+    time_t seconds(s);
     tm p;
-    gmtime_r (&seconds, &p);
+    gmtime_r(&seconds, &p);
 
     std::ostringstream os;
 
@@ -257,7 +257,7 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
 
     std::regex param_regex(R"(params\.(\w+)(.*))", std::regex_constants::icase);
     std::regex default_value_regex(R"(\|\s*default\s*\(\s*((["'])(?:\\.|[^\x02])*\2|-?[0-9][^,)]*))",
-                                   std::regex_constants::icase);
+      std::regex_constants::icase);
     for (auto &el : m.items()) {
       std::string key = el.key();
       if (key.rfind("gcode_macro ", 0) == 0) {
@@ -269,7 +269,7 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
 
             const auto &gcode_str = gcode.template get<std::string>();
             auto param_begin =
-                std::sregex_iterator(gcode_str.begin(), gcode_str.end(), param_regex);
+              std::sregex_iterator(gcode_str.begin(), gcode_str.end(), param_regex);
             auto param_end = std::sregex_iterator();
 
             std::map<std::string, std::string> macro_params;
@@ -296,4 +296,4 @@ std::pair<std::string, std::pair<size_t, size_t>> get_thumbnail(const std::strin
 
     return macros;
   }
-  }  // namespace KUtils
+}  // namespace KUtils

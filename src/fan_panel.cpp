@@ -73,7 +73,7 @@ void FanPanel::create_fans(json &f) {
       fan_cb = &FanPanel::_handle_fan_update_generic;
     }
     auto fptr = std::make_shared<SliderContainer>(fans_cont, display_name.c_str(), &cancel, "Off",
-						  &fan_on, "Max", fan_cb, this);
+      &fan_on, "Max", fan_cb, this);
     fans.insert({key, fptr});
     // lv_obj_set_grid_cell(fptr->get_container(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, rowidx++, 1);
   }
@@ -113,8 +113,7 @@ void FanPanel::handle_callback(lv_event_t *event) {
   lv_obj_t *btn = lv_event_get_current_target(event);
   if (btn == back_btn.get_container()) {
     lv_obj_move_background(fanpanel_cont);
-  }
-  else {
+  } else {
     spdlog::debug("Unknown action button pressed");
   }
 }
@@ -128,27 +127,27 @@ void FanPanel::handle_fan_update(lv_event_t *event) {
     spdlog::trace("updating fan speed to {}", pct);
     for (auto &f : fans) {
       if (obj == f.second->get_slider()) {
-	std::string fan_name = KUtils::get_obj_name(f.first);
-      	spdlog::trace("update fan {}", fan_name);
-	ws.gcode_script(fmt::format(fmt::format("SET_PIN PIN={} VALUE={}", fan_name, pct)));
-	break;
+        std::string fan_name = KUtils::get_obj_name(f.first);
+        spdlog::trace("update fan {}", fan_name);
+        ws.gcode_script(fmt::format(fmt::format("SET_PIN PIN={} VALUE={}", fan_name, pct)));
+        break;
       }
     }
   } else if (lv_event_get_code(event) == LV_EVENT_CLICKED) {
     obj = lv_event_get_current_target(event);
     for (auto &f : fans) {
       if (obj == f.second->get_off()) {
-	std::string fan_name = KUtils::get_obj_name(f.first);
-      	spdlog::trace("turning off fan {}", fan_name);
-	ws.gcode_script(fmt::format("SET_PIN PIN={} VALUE=0", fan_name));
-	f.second->update_value(0);
-	break;
+        std::string fan_name = KUtils::get_obj_name(f.first);
+        spdlog::trace("turning off fan {}", fan_name);
+        ws.gcode_script(fmt::format("SET_PIN PIN={} VALUE=0", fan_name));
+        f.second->update_value(0);
+        break;
       } else if (obj == f.second->get_max()) {
-	std::string fan_name = KUtils::get_obj_name(f.first);
-	spdlog::trace("turning fan to max {}", fan_name);
-	ws.gcode_script(fmt::format("SET_PIN PIN={} VALUE=255", fan_name));
-	f.second->update_value(100);
-	break;
+        std::string fan_name = KUtils::get_obj_name(f.first);
+        spdlog::trace("turning fan to max {}", fan_name);
+        ws.gcode_script(fmt::format("SET_PIN PIN={} VALUE=255", fan_name));
+        f.second->update_value(100);
+        break;
       }
     }
   }
@@ -163,8 +162,8 @@ void FanPanel::handle_fan_update_part_fan(lv_event_t *event) {
     spdlog::trace("updating part fan speed to {}", pct);
     for (auto &f : fans) {
       if (obj == f.second->get_slider()) {
-	ws.gcode_script(fmt::format(fmt::format("M106 S{}", pct)));
-	break;
+        ws.gcode_script(fmt::format(fmt::format("M106 S{}", pct)));
+        break;
       }
     }
 
@@ -173,13 +172,13 @@ void FanPanel::handle_fan_update_part_fan(lv_event_t *event) {
 
     for (auto &f : fans) {
       if (obj == f.second->get_off()) {
-	ws.gcode_script("M106 S0");
-	f.second->update_value(0);
-	break;
+        ws.gcode_script("M106 S0");
+        f.second->update_value(0);
+        break;
       } else if (obj == f.second->get_max()) {
-	ws.gcode_script("M106 S255");
-	f.second->update_value(100);
-	break;
+        ws.gcode_script("M106 S255");
+        f.second->update_value(100);
+        break;
       }
     }
   }
@@ -194,10 +193,10 @@ void FanPanel::handle_fan_update_generic(lv_event_t *event) {
     spdlog::trace("updating fan speed to {}", pct);
     for (auto &f : fans) {
       if (obj == f.second->get_slider()) {
-	std::string fan_name = KUtils::get_obj_name(f.first);
-      	spdlog::trace("update fan {}", fan_name);
-	ws.gcode_script(fmt::format(fmt::format("SET_FAN_SPEED FAN={} SPEED={}", fan_name, pct)));
-	break;
+        std::string fan_name = KUtils::get_obj_name(f.first);
+        spdlog::trace("update fan {}", fan_name);
+        ws.gcode_script(fmt::format(fmt::format("SET_FAN_SPEED FAN={} SPEED={}", fan_name, pct)));
+        break;
       }
     }
   } else if (lv_event_get_code(event) == LV_EVENT_CLICKED) {
@@ -205,17 +204,17 @@ void FanPanel::handle_fan_update_generic(lv_event_t *event) {
 
     for (auto &f : fans) {
       if (obj == f.second->get_off()) {
-	std::string fan_name = KUtils::get_obj_name(f.first);
-      	spdlog::trace("turning off fan {}", fan_name);
-	ws.gcode_script(fmt::format("SET_FAN_SPEED FAN={} SPEED=0", fan_name));
-	f.second->update_value(0);
-	break;
+        std::string fan_name = KUtils::get_obj_name(f.first);
+        spdlog::trace("turning off fan {}", fan_name);
+        ws.gcode_script(fmt::format("SET_FAN_SPEED FAN={} SPEED=0", fan_name));
+        f.second->update_value(0);
+        break;
       } else if (obj == f.second->get_max()) {
-	std::string fan_name = KUtils::get_obj_name(f.first);
-	spdlog::trace("turning fan to max {}", fan_name);
-	ws.gcode_script(fmt::format("SET_FAN_SPEED FAN={} SPEED=1", fan_name));
-	f.second->update_value(100);
-	break;
+        std::string fan_name = KUtils::get_obj_name(f.first);
+        spdlog::trace("turning fan to max {}", fan_name);
+        ws.gcode_script(fmt::format("SET_FAN_SPEED FAN={} SPEED=1", fan_name));
+        f.second->update_value(100);
+        break;
       }
     }
   }

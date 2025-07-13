@@ -62,20 +62,20 @@ SysInfoPanel::SysInfoPanel()
   , right_cont(lv_obj_create(cont))
   , network_label(lv_label_create(right_cont))
 
-    // display sleep
+  // display sleep
   , disp_sleep_cont(lv_obj_create(left_cont))
   , display_sleep_dd(lv_dropdown_create(disp_sleep_cont))
 
-    // log level
+  // log level
   , ll_cont(lv_obj_create(left_cont))
   , loglevel_dd(lv_dropdown_create(ll_cont))
   , loglevel(1)
 
-    // estop prompt
+  // estop prompt
   , estop_toggle_cont(lv_obj_create(left_cont))
   , prompt_estop_toggle(lv_switch_create(estop_toggle_cont))
 
-    // Z axis icons
+  // Z axis icons
   , z_icon_toggle_cont(lv_obj_create(left_cont))
   , z_icon_toggle(lv_switch_create(z_icon_toggle_cont))
 
@@ -109,13 +109,13 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
   lv_obj_align(display_sleep_dd, LV_ALIGN_RIGHT_MID, 0, 0);
   lv_dropdown_set_options(display_sleep_dd,
-        "Never\n"
-        "30 Seconds\n"
-        "1 Minute\n"
-        "5 Minutes\n"
-			  "10 Minutes\n"
-			  "30 Minutes\n"
-			  "1 Hour");
+    "Never\n"
+    "30 Seconds\n"
+    "1 Minute\n"
+    "5 Minutes\n"
+    "10 Minutes\n"
+    "30 Minutes\n"
+    "1 Hour");
 
   auto v = conf->get_json("/display_sleep_sec");
   if (!v.is_null()) {
@@ -126,7 +126,7 @@ SysInfoPanel::SysInfoPanel()
     }
   }
   lv_obj_add_event_cb(display_sleep_dd, &SysInfoPanel::_handle_callback,
-		      LV_EVENT_VALUE_CHANGED, this);
+    LV_EVENT_VALUE_CHANGED, this);
 
   lv_obj_set_size(ll_cont, LV_PCT(100), LV_SIZE_CONTENT);
   lv_obj_set_style_pad_all(ll_cont, 0, 0);
@@ -151,7 +151,7 @@ SysInfoPanel::SysInfoPanel()
   }
 
   lv_obj_add_event_cb(loglevel_dd, &SysInfoPanel::_handle_callback,
-		      LV_EVENT_VALUE_CHANGED, this);
+    LV_EVENT_VALUE_CHANGED, this);
 
   lv_obj_set_size(estop_toggle_cont, LV_PCT(100), LV_SIZE_CONTENT);
   lv_obj_set_style_pad_all(estop_toggle_cont, 0, 0);
@@ -173,9 +173,9 @@ SysInfoPanel::SysInfoPanel()
   }
 
   lv_obj_add_event_cb(prompt_estop_toggle, &SysInfoPanel::_handle_callback,
-		      LV_EVENT_VALUE_CHANGED, this);
+    LV_EVENT_VALUE_CHANGED, this);
 
-    /* Z icon selection */
+  /* Z icon selection */
   lv_obj_set_size(z_icon_toggle_cont, LV_PCT(100), LV_SIZE_CONTENT);
   lv_obj_set_style_pad_all(z_icon_toggle_cont, 0, 0);
 
@@ -197,7 +197,7 @@ SysInfoPanel::SysInfoPanel()
   }
 
   lv_obj_add_event_cb(z_icon_toggle, &SysInfoPanel::_handle_callback,
-		      LV_EVENT_VALUE_CHANGED, this);
+    LV_EVENT_VALUE_CHANGED, this);
 
   // theme dropdown
   lv_obj_set_size(theme_cont, LV_PCT(100), LV_SIZE_CONTENT);
@@ -211,16 +211,16 @@ SysInfoPanel::SysInfoPanel()
 
   v = conf->get_json("/theme");
   if (!v.is_null()) {
-      auto it = std::find(themes.begin(), themes.end(), v.template get<std::string>());
-      if (it != std::end(themes)) {
-          theme = std::distance(themes.begin(), it);
-          lv_dropdown_set_selected(theme_dd, theme);
-      }
-  } else {
+    auto it = std::find(themes.begin(), themes.end(), v.template get<std::string>());
+    if (it != std::end(themes)) {
+      theme = std::distance(themes.begin(), it);
       lv_dropdown_set_selected(theme_dd, theme);
+    }
+  } else {
+    lv_dropdown_set_selected(theme_dd, theme);
   }
   lv_obj_add_event_cb(theme_dd, &SysInfoPanel::_handle_callback,
-                      LV_EVENT_VALUE_CHANGED, this);
+    LV_EVENT_VALUE_CHANGED, this);
 
 
   lv_obj_add_flag(back_btn.get_container(), LV_OBJ_FLAG_FLOATING);
@@ -245,7 +245,7 @@ void SysInfoPanel::foreground() {
     network_detail.push_back(fmt::format("\t{}: {}", iface, ip));
   }
   lv_label_set_text(network_label, fmt::format("{}\n\nGuppyScreen\n\tVersion: " GS_VERSION,
-					       fmt::join(network_detail, "\n")).c_str());
+    fmt::join(network_detail, "\n")).c_str());
 }
 
 void SysInfoPanel::handle_callback(lv_event_t *e)
@@ -257,8 +257,7 @@ void SysInfoPanel::handle_callback(lv_event_t *e)
     {
       lv_obj_move_background(cont);
     }
-  }
-  else if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
+  } else if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
     lv_obj_t *obj = lv_event_get_target(e);
     Config *conf = Config::get_instance();
     if (obj == loglevel_dd) {
@@ -275,13 +274,11 @@ void SysInfoPanel::handle_callback(lv_event_t *e)
           conf->save();
         }
       }
-    }
-    else if (obj == prompt_estop_toggle) {
+    } else if (obj == prompt_estop_toggle) {
       bool should_prompt = lv_obj_has_state(prompt_estop_toggle, LV_STATE_CHECKED);
       conf->set<bool>("/prompt_emergency_stop", should_prompt);
       conf->save();
-    }
-    else if (obj == display_sleep_dd) {
+    } else if (obj == display_sleep_dd) {
       char buf[64];
       lv_dropdown_get_selected_str(display_sleep_dd, buf, sizeof(buf));
       std::string sleep_label = std::string(buf);
@@ -291,8 +288,7 @@ void SysInfoPanel::handle_callback(lv_event_t *e)
         conf->set<int32_t>("/display_sleep_sec", el->second);
         conf->save();
       }
-    }
-    else if (obj == z_icon_toggle) {
+    } else if (obj == z_icon_toggle) {
       bool inverted = lv_obj_has_state(z_icon_toggle, LV_STATE_CHECKED);
       conf->set<bool>("/invert_z_icon", inverted);
       conf->save();

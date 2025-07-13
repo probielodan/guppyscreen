@@ -3,12 +3,12 @@
 #include "spdlog/spdlog.h"
 
 ButtonContainer::ButtonContainer(lv_obj_t *parent,
-         const void *btn_img,
-         const char *text,
-         lv_event_cb_t cb,
-         void* user_data,
-         const std::string &prompt,
-         const std::function<void()> &pcb)
+  const void *btn_img,
+  const char *text,
+  lv_event_cb_t cb,
+  void *user_data,
+  const std::string &prompt,
+  const std::function<void()> &pcb)
   : btn_cont(lv_obj_create(parent))
   , btn(lv_imgbtn_create(btn_cont))
   , label(lv_label_create(btn_cont))
@@ -44,15 +44,14 @@ ButtonContainer::ButtonContainer(lv_obj_t *parent,
     lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_RELEASED, this);
 
     lv_obj_add_event_cb(btn_cont, cb, LV_EVENT_CLICKED, user_data);
-  }
-  else if (cb != NULL && pcb) {
+  } else if (cb != NULL && pcb) {
     if (prompt_estop) {
       lv_obj_add_event_cb(btn_cont, [](lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_CLICKED) {
-    ((ButtonContainer*)e->user_data)->handle_prompt();
-  }
-      }, LV_EVENT_CLICKED, this);
+        lv_event_code_t code = lv_event_get_code(e);
+        if (code == LV_EVENT_CLICKED) {
+          ((ButtonContainer *)e->user_data)->handle_prompt();
+        }
+        }, LV_EVENT_CLICKED, this);
     } else {
       lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_PRESSED, this);
       lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_RELEASED, this);
@@ -113,10 +112,10 @@ void ButtonContainer::handle_callback(lv_event_t *e) {
 }
 
 void ButtonContainer::handle_prompt() {
-  static const char * btns[] = {"Confirm", "Cancel", ""};
+  static const char *btns[] = {"Confirm", "Cancel", ""};
 
   lv_obj_t *mbox1 = lv_msgbox_create(NULL, NULL, prompt_text.c_str(), btns, false);
-  lv_obj_t *msg = ((lv_msgbox_t*)mbox1)->text;
+  lv_obj_t *msg = ((lv_msgbox_t *)mbox1)->text;
   lv_obj_set_style_text_align(msg, LV_TEXT_ALIGN_CENTER, 0);
   lv_obj_set_width(msg, LV_PCT(100));
   lv_obj_center(msg);
@@ -129,19 +128,19 @@ void ButtonContainer::handle_prompt() {
 
   auto hscale = (double)lv_disp_get_physical_ver_res(NULL) / 480.0;
 
-  lv_obj_set_size(btnm, LV_PCT(90), 50 *hscale);
+  lv_obj_set_size(btnm, LV_PCT(90), 50 * hscale);
   lv_obj_set_size(mbox1, LV_PCT(50), LV_PCT(35));
 
   lv_obj_add_event_cb(mbox1, [](lv_event_t *e) {
     lv_obj_t *obj = lv_obj_get_parent(lv_event_get_target(e));
     uint32_t clicked_btn = lv_msgbox_get_active_btn(obj);
-    if(clicked_btn == 0) {
-      ((ButtonContainer*)e->user_data)->run_callback();
+    if (clicked_btn == 0) {
+      ((ButtonContainer *)e->user_data)->run_callback();
     }
 
     lv_msgbox_close(obj);
 
-  }, LV_EVENT_VALUE_CHANGED, this);
+    }, LV_EVENT_VALUE_CHANGED, this);
 
   lv_obj_center(mbox1);
 }

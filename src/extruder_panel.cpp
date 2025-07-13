@@ -15,21 +15,21 @@ LV_IMG_DECLARE(extruder);
 LV_IMG_DECLARE(cooldown_img);
 
 ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
-			     std::mutex &lock,
-			     Numpad &numpad,
-			     SpoolmanPanel &sm)
+  std::mutex &lock,
+  Numpad &numpad,
+  SpoolmanPanel &sm)
   : NotifyConsumer(lock)
   , ws(websocket_client)
   , panel_cont(lv_obj_create(lv_scr_act()))
   , spoolman_panel(sm)
   , extruder_temp(ws, panel_cont, &extruder, 150,
-	  "Extruder", lv_palette_main(LV_PALETTE_RED), false, true, numpad, "extruder", NULL, NULL)
+    "Extruder", lv_palette_main(LV_PALETTE_RED), false, true, numpad, "extruder", NULL, NULL)
   , temp_selector(panel_cont, "Extruder Temperature (C)",
-		  {"180", "190", "200", "210", "220", "230", "240", ""}, 6, &ExtruderPanel::_handle_callback, this)
+    {"180", "190", "200", "210", "220", "230", "240", ""}, 6, &ExtruderPanel::_handle_callback, this)
   , length_selector(panel_cont, "Extrude Length (mm)",
-		    {"5", "10", "15", "20", "25", "30", "35", ""}, 1, &ExtruderPanel::_handle_callback, this)
+    {"5", "10", "15", "20", "25", "30", "35", ""}, 1, &ExtruderPanel::_handle_callback, this)
   , speed_selector(panel_cont, "Extrude Speed (mm/s)",
-		   {"1", "2", "5", "10", "25", "35", "50", ""}, 2, &ExtruderPanel::_handle_callback, this)
+    {"1", "2", "5", "10", "25", "35", "50", ""}, 2, &ExtruderPanel::_handle_callback, this)
   , rightside_btns_cont(lv_obj_create(panel_cont))
   , leftside_btns_cont(lv_obj_create(panel_cont))
   , load_btn(leftside_btns_cont, &load_filament_img, "Load", &ExtruderPanel::_handle_callback, this)
@@ -143,7 +143,7 @@ void ExtruderPanel::enable_spoolman() {
   spoolman_btn.enable();
 }
 
-void ExtruderPanel::consume(json& j) {
+void ExtruderPanel::consume(json &j) {
   std::lock_guard<std::mutex> lock(lv_lock);
   auto target_value = j["/params/0/extruder/target"_json_pointer];
   if (!target_value.is_null()) {
@@ -163,7 +163,7 @@ void ExtruderPanel::handle_callback(lv_event_t *e) {
   if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
     lv_obj_t *selector = lv_event_get_target(e);
     uint32_t idx = lv_btnmatrix_get_selected_btn(selector);
-    const char * v = lv_btnmatrix_get_btn_text(selector, idx);
+    const char *v = lv_btnmatrix_get_btn_text(selector, idx);
 
     if (selector == temp_selector.get_selector()) {
       temp_selector.set_selected_idx(idx);
@@ -178,9 +178,9 @@ void ExtruderPanel::handle_callback(lv_event_t *e) {
     }
 
     spdlog::trace("selector {} {} {}, {} {} {}", fmt::ptr(selector), idx, v,
-		  fmt::ptr(temp_selector.get_selector()),
-		  fmt::ptr(length_selector.get_selector()),
-		  fmt::ptr(speed_selector.get_selector()));
+      fmt::ptr(temp_selector.get_selector()),
+      fmt::ptr(length_selector.get_selector()),
+      fmt::ptr(speed_selector.get_selector()));
 
   } else if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
     lv_obj_t *btn = lv_event_get_current_target(e);
@@ -190,29 +190,29 @@ void ExtruderPanel::handle_callback(lv_event_t *e) {
     }
 
     if (btn == extrude_btn.get_container()) {
-      const char * temp = lv_btnmatrix_get_btn_text(temp_selector.get_selector(),
-						   temp_selector.get_selected_idx());
-      const char * len = lv_btnmatrix_get_btn_text(length_selector.get_selector(),
-						   length_selector.get_selected_idx());
+      const char *temp = lv_btnmatrix_get_btn_text(temp_selector.get_selector(),
+        temp_selector.get_selected_idx());
+      const char *len = lv_btnmatrix_get_btn_text(length_selector.get_selector(),
+        length_selector.get_selected_idx());
       const char *speed = lv_btnmatrix_get_btn_text(speed_selector.get_selector(),
-						    speed_selector.get_selected_idx());
+        speed_selector.get_selected_idx());
       ws.gcode_script(fmt::format("M109 S{}\nM83\nG1 E{} F{}", temp, len, std::stoi(speed) * 60));
     }
 
     if (btn == retract_btn.get_container()) {
-      const char * temp = lv_btnmatrix_get_btn_text(temp_selector.get_selector(),
-						   temp_selector.get_selected_idx());
-      const char * len = lv_btnmatrix_get_btn_text(length_selector.get_selector(),
-						   length_selector.get_selected_idx());
+      const char *temp = lv_btnmatrix_get_btn_text(temp_selector.get_selector(),
+        temp_selector.get_selected_idx());
+      const char *len = lv_btnmatrix_get_btn_text(length_selector.get_selector(),
+        length_selector.get_selected_idx());
       const char *speed = lv_btnmatrix_get_btn_text(speed_selector.get_selector(),
-						    speed_selector.get_selected_idx());
+        speed_selector.get_selected_idx());
       ws.gcode_script(fmt::format("M109 S{}\nM83\nG1 E-{} F{}", temp, len, std::stoi(speed) * 60));
     }
 
     if (btn == unload_btn.get_container()) {
       if (unload_filament_macro == "_GUPPY_QUIT_MATERIAL") {
         const char *temp = lv_btnmatrix_get_btn_text(temp_selector.get_selector(),
-                                                     temp_selector.get_selected_idx());
+          temp_selector.get_selected_idx());
         ws.gcode_script(fmt::format("{} EXTRUDER_TEMP={}", unload_filament_macro, temp));
       } else {
         ws.gcode_script(unload_filament_macro);
@@ -222,9 +222,9 @@ void ExtruderPanel::handle_callback(lv_event_t *e) {
     if (btn == load_btn.get_container()) {
       if (load_filament_macro == "_GUPPY_LOAD_MATERIAL") {
         const char *temp = lv_btnmatrix_get_btn_text(temp_selector.get_selector(),
-                                                     temp_selector.get_selected_idx());
+          temp_selector.get_selected_idx());
         const char *len = lv_btnmatrix_get_btn_text(length_selector.get_selector(),
-                                                    length_selector.get_selected_idx());
+          length_selector.get_selected_idx());
         ws.gcode_script(fmt::format("{} EXTRUDER_TEMP={} EXTRUDE_LEN={}", load_filament_macro, temp, len));
       } else {
         ws.gcode_script(load_filament_macro);

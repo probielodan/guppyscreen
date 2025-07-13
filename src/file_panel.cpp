@@ -66,7 +66,7 @@ void FilePanel::refresh_view(json &j, const std::string &gcode_path) {
   }
 
   v = j["/result/estimated_time"_json_pointer];
-  int eta =  v.is_null() ? -1 : v.template get<int>();
+  int eta = v.is_null() ? -1 : v.template get<int>();
   v = j["/result/filament_weight_total"_json_pointer];
   int fweight = v.is_null() ? -1 : v.template get<int>();
 
@@ -74,10 +74,10 @@ void FilePanel::refresh_view(json &j, const std::string &gcode_path) {
   lv_label_set_text(fname_label, filename.string().c_str());
 
   std::string detail = fmt::format("Filament Weight: {} g\nPrint Time: {}\nSize: {} MB\nModified: {}",
-                   fweight > 0 ? std::to_string(fweight) : "(unknown)",
-                   eta > 0 ? KUtils::eta_string(eta) : "(unknown)",
-                   KUtils::bytes_to_mb(j["result"]["size"].template get<size_t>()),
-                   time_stream.str());
+    fweight > 0 ? std::to_string(fweight) : "(unknown)",
+    eta > 0 ? KUtils::eta_string(eta) : "(unknown)",
+    KUtils::bytes_to_mb(j["result"]["size"].template get<size_t>()),
+    time_stream.str());
 
   auto width_scale = (double)lv_disp_get_physical_hor_res(NULL) / 800.0;
   auto thumb_result = KUtils::get_thumbnail(gcode_path, j, width_scale);
@@ -103,7 +103,7 @@ void FilePanel::refresh_view(json &j, const std::string &gcode_path) {
     lv_obj_align_to(thumbnail, thumbnail_container, LV_ALIGN_CENTER, 0, 0);
   } else {
     lv_img_set_src(thumbnail, NULL);
-    ((lv_img_t*)thumbnail)->src_type = LV_IMG_SRC_SYMBOL;
+    ((lv_img_t *)thumbnail)->src_type = LV_IMG_SRC_SYMBOL;
   }
 }
 
@@ -115,6 +115,6 @@ lv_obj_t *FilePanel::get_container() {
   return file_cont;
 }
 
-const char* FilePanel::get_thumbnail_path() {
-  return (const char*)lv_img_get_src(thumbnail);
+const char *FilePanel::get_thumbnail_path() {
+  return (const char *)lv_img_get_src(thumbnail);
 }

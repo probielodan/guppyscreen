@@ -10,16 +10,16 @@
 using json = nlohmann::json;
 
 class FilePanel {
- public:
+public:
   FilePanel(lv_obj_t *parent);
   ~FilePanel();
 
   void foreground();
   void refresh_view(json &j, const std::string &gcode_path);
   lv_obj_t *get_container();
-  const char* get_thumbnail_path();
+  const char *get_thumbnail_path();
 
- private:
+private:
   lv_obj_t *file_cont;
   lv_obj_t *thumbnail_container;
   lv_obj_t *thumbnail;

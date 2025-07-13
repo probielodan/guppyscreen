@@ -50,9 +50,9 @@ SettingPanel::SettingPanel(KWebSocketClient &c, std::mutex &l, lv_obj_t *parent,
   wifi_btn.disable();
 #endif
 
-  static lv_coord_t grid_main_row_dsc[] = { LV_GRID_FR(1), LV_GRID_FR(5), LV_GRID_FR(5), LV_GRID_FR(1),
-    LV_GRID_TEMPLATE_LAST };
-  static lv_coord_t grid_main_col_dsc[] = { LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
+  static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(5), LV_GRID_FR(5), LV_GRID_FR(1),
+    LV_GRID_TEMPLATE_LAST};
+  static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1),
     LV_GRID_TEMPLATE_LAST};
 
   lv_obj_set_grid_dsc_array(cont, grid_main_col_dsc, grid_main_row_dsc);
@@ -111,7 +111,7 @@ void SettingPanel::handle_callback(lv_event_t *event) {
       if (fs::exists(script) || init_script.rfind("service guppyscreen", 0) == 0) {
         sp::call({init_script, "restart"});
       } else {
-        	spdlog::warn("Failed to restart Guppy Screen. Did not find restart script.");
+        spdlog::warn("Failed to restart Guppy Screen. Did not find restart script.");
       }
     } else if (btn == guppy_update_btn.get_container()) {
       spdlog::trace("update guppy pressed");
@@ -119,9 +119,9 @@ void SettingPanel::handle_callback(lv_event_t *event) {
       auto update_script = fs::canonical("/proc/self/exe").parent_path() / "update.sh";
       const fs::path script(update_script);
       if (fs::exists(script)) {
-	sp::call(script);
+        sp::call(script);
       } else {
-	spdlog::warn("Failed to update Guppy Screen. Did not find update script.");
+        spdlog::warn("Failed to update Guppy Screen. Did not find update script.");
       }
     } else if (btn == printer_select_btn.get_container()) {
       spdlog::trace("setting printers pressed");

@@ -10,18 +10,18 @@ SliderContainer::SliderContainer(lv_obj_t *parent,
   lv_event_cb_t cb,
   void *user_data)
   : SliderContainer(parent,
-  label_text,
-  off_btn_img,
-  off_text,
-  cb,
-  user_data,
-  max_btn_img,
-  max_text,
-  cb,
-  user_data,
-  cb,
-  user_data,
-  "%") {
+    label_text,
+    off_btn_img,
+    off_text,
+    cb,
+    user_data,
+    max_btn_img,
+    max_text,
+    cb,
+    user_data,
+    cb,
+    user_data,
+    "%") {
 }
 
 SliderContainer::SliderContainer(lv_obj_t *parent,
@@ -34,18 +34,18 @@ SliderContainer::SliderContainer(lv_obj_t *parent,
   void *user_data,
   std::string u)
   : SliderContainer(parent,
-  label_text,
-  off_btn_img,
-  off_text,
-  cb,
-  user_data,
-  max_btn_img,
-  max_text,
-  cb,
-  user_data,
-  cb,
-  user_data,
-  u) {
+    label_text,
+    off_btn_img,
+    off_text,
+    cb,
+    user_data,
+    max_btn_img,
+    max_text,
+    cb,
+    user_data,
+    cb,
+    user_data,
+    u) {
 }
 
 
@@ -54,13 +54,13 @@ SliderContainer::SliderContainer(lv_obj_t *parent,
   const void *off_btn_img,
   const char *off_text,
   lv_event_cb_t off_cb,
-  void * off_cb_user_data,
+  void *off_cb_user_data,
   const void *max_btn_img,
   const char *max_text,
   lv_event_cb_t max_cb,
-  void * max_cb_user_data,
+  void *max_cb_user_data,
   lv_event_cb_t slider_cb,
-  void * slider_user_data,
+  void *slider_user_data,
   std::string u)
   : cont(lv_obj_create(parent))
   , label(lv_label_create(cont))
@@ -149,6 +149,6 @@ void SliderContainer::update_value(int value) {
 }
 
 void SliderContainer::handle_value_update(lv_event_t *event) {
-  lv_obj_t * obj = lv_event_get_target(event);
+  lv_obj_t *obj = lv_event_get_target(event);
   update_value((int)lv_slider_get_value(obj));
 }
