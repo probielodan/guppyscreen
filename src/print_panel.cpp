@@ -167,6 +167,10 @@ void PrintPanel::populate_files(json &j) {
 }
 
 void PrintPanel::consume(json &j) {
+  if (j["method"] == "notify_filelist_changed") {
+    subscribe();
+    return;
+  }
   json &pstat_state = j["/params/0/print_stats/state"_json_pointer];
   if (pstat_state.is_null()) {
     return;

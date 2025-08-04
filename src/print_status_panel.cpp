@@ -79,35 +79,36 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   lv_obj_set_grid_dsc_array(detail_cont, grid_main_col_dsc_detail, grid_main_row_dsc_detail);
 
   lv_obj_clear_flag(detail_cont, LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_size(detail_cont, LV_PCT(60), LV_PCT(60));
+  lv_obj_set_style_pad_all(detail_cont, 0, 0);
 
   //detail containter row 1
-  lv_obj_set_grid_cell(extruder_temp.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
-  lv_obj_set_grid_cell(bed_temp.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
+  lv_obj_set_grid_cell(extruder_temp.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+  lv_obj_set_grid_cell(bed_temp.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
   //detail containter row 2
-  lv_obj_set_grid_cell(print_speed.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
-  lv_obj_set_grid_cell(z_offset.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
+  lv_obj_set_grid_cell(print_speed.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  lv_obj_set_grid_cell(z_offset.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
   //detail containter row 3
-  lv_obj_set_grid_cell(flow_rate.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
-  lv_obj_set_grid_cell(layers.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 2, 1);
+  lv_obj_set_grid_cell(flow_rate.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+  lv_obj_set_grid_cell(layers.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
   //detail containter row 4
-  lv_obj_set_grid_cell(elapsed.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 3, 1);
-  lv_obj_set_grid_cell(fan0.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 3, 1);
+  lv_obj_set_grid_cell(elapsed.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
+  lv_obj_set_grid_cell(fan0.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
 
   //detail containter row 5
-  lv_obj_set_grid_cell(time_left.get_container(), LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 4, 1);
+  lv_obj_set_grid_cell(time_left.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
   // lv_obj_set_grid_cell(fan2.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 4, 1);
 
-  static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-  static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+  static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(1), LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+  static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(4), LV_GRID_FR(5), LV_GRID_TEMPLATE_LAST};
 
   lv_obj_set_grid_dsc_array(status_cont, grid_main_col_dsc, grid_main_row_dsc);
 
-  lv_obj_set_size(buttons_cont, LV_PCT(100), LV_PCT(40));
+  lv_obj_set_size(buttons_cont, LV_PCT(100), LV_SIZE_CONTENT);
   lv_obj_clear_flag(buttons_cont, LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_set_style_pad_all(buttons_cont, 0, 0);
   lv_obj_set_flex_flow(buttons_cont, LV_FLEX_FLOW_ROW);
   lv_obj_set_flex_align(buttons_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
@@ -119,29 +120,26 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   lv_obj_set_flex_grow(back_btn.get_container(), 1);
 
   lv_obj_set_style_pad_all(pbar_cont, 0, 0);
-  lv_obj_set_size(pbar_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+  lv_obj_set_size(pbar_cont, LV_PCT(100), LV_SIZE_CONTENT);
   // lv_obj_set_style_border_width(pbar_cont, 2, 0);
   // lv_obj_set_style_border_width(thumbnail_cont, 2, 0);
 
-  auto bar_width = (double)lv_disp_get_physical_hor_res(NULL) * 0.35;
   auto hscale = (double)lv_disp_get_physical_ver_res(NULL) / 480.0;
 
-  lv_obj_set_size(progress_bar, bar_width, 20 * hscale);
+  lv_obj_set_size(progress_bar, LV_PCT(100), 20 * hscale);
   lv_bar_set_value(progress_bar, 0, LV_ANIM_OFF);
-  lv_obj_center(progress_bar);
 
   lv_label_set_text(progress_label, "0%");
   lv_obj_center(progress_label);
 
   lv_obj_set_flex_flow(thumbnail_cont, LV_FLEX_FLOW_COLUMN);
-  lv_obj_set_flex_align(thumbnail_cont, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+  lv_obj_set_flex_align(thumbnail_cont, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
   lv_obj_set_size(thumbnail_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
   lv_obj_set_style_pad_all(thumbnail_cont, 0, 0);
-  lv_obj_set_style_pad_row(thumbnail_cont, 20, 0);
 
   // row 1
-  lv_obj_set_grid_cell(thumbnail_cont, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
-  lv_obj_set_grid_cell(detail_cont, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+  lv_obj_set_grid_cell(thumbnail_cont, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
+  lv_obj_set_grid_cell(detail_cont, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
   //row 2
   lv_obj_set_grid_cell(buttons_cont, LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_STRETCH, 1, 1);
@@ -296,10 +294,20 @@ void PrintStatusPanel::handle_metadata(const std::string &gcode_file, json &j) {
     std::lock_guard<std::mutex> lock(lv_lock);
     const std::string img_path = "A:" + fullpath;
 
-    auto screen_width = lv_disp_get_physical_hor_res(NULL);
-    uint32_t normalized_thumb_scale = ((0.34 * (double)screen_width) / (double)thumb_detail.second.first) * 256;
     lv_img_set_src(thumbnail, img_path.c_str());
-    lv_img_set_zoom(thumbnail, normalized_thumb_scale);
+    auto thumb_w = thumb_detail.second.first;
+    auto thumb_h = thumb_detail.second.second;
+
+    auto available_w = lv_obj_get_width(thumbnail_cont);
+    auto available_h = lv_obj_get_height(thumbnail_cont) - lv_obj_get_height(pbar_cont) - lv_obj_get_style_pad_row(thumbnail_cont, LV_PART_MAIN);
+
+    double scale_x = (double)available_w / (double)thumb_w;
+    double scale_y = (double)available_h / (double)thumb_h;
+    double scale = std::min(scale_x, scale_y);
+
+    uint32_t lv_zoom = static_cast<uint32_t>(scale * 256.0);
+    lv_img_set_pivot(thumbnail, thumb_w / 2, thumb_h);
+    lv_img_set_zoom(thumbnail, lv_zoom);
     mini_print_status.update_img(img_path, thumb_detail.second.first);
   }
 }
