@@ -126,19 +126,6 @@ void FineTunePanel::foreground() {
       static_cast<int>(v.template get<double>() * 100)).c_str());
   }
 
-  //Set the Z axis buttons
-  v = Config::get_instance()->get_json("/invert_z_icon");
-  bool inverted = !v.is_null() && v.template get<bool>();
-  if (inverted) {
-    // UP arrow
-    zup_btn.set_image(&z_farther);
-    zdown_btn.set_image(&z_closer);
-  } else {
-    // DOWN arrow
-    zup_btn.set_image(&z_closer);
-    zdown_btn.set_image(&z_farther);
-  }
-
   lv_obj_move_foreground(panel_cont);
 }
 
@@ -198,12 +185,25 @@ void FineTunePanel::handle_zoffset(lv_event_t *e) {
       spdlog::trace("clicked zoffset reset");
       ws.gcode_script("SET_GCODE_OFFSET Z=0 MOVE=1");
     } else {
-      const char *step = lv_btnmatrix_get_btn_text(zoffset_selector.get_selector(),
-        zoffset_selector.get_selected_idx());
-      spdlog::trace("clicked z {}", step);
-      ws.gcode_script(fmt::format("SET_GCODE_OFFSET Z_ADJUST={}{} MOVE=1",
-        btn == zup_btn.get_container() ? "+" : "-",
-        step));
+      try {
+        const char *step = lv_btnmatrix_get_btn_text(zoffset_selector.get_selector(),
+          zoffset_selector.get_selected_idx());
+
+        bool invert_z = false;
+        auto invert_z_json = Config::get_instance()->get_json("/invert_z_direction");
+        if (invert_z_json.is_boolean()) {
+          invert_z = invert_z_json.get<bool>();
+        }
+
+        bool is_up_button = (btn == zup_btn.get_container());
+        const char *sign = (is_up_button != invert_z) ? "+" : "-";
+
+        spdlog::trace("clicked z-offset {}{}{}", sign, step, invert_z ? " (inverted)" : "");
+        ws.gcode_script(fmt::format("SET_GCODE_OFFSET Z_ADJUST={}{} MOVE=1", sign, step));
+
+      } catch (const std::exception &ex) {
+        spdlog::error("Error in handle_zoffset: {}", ex.what());
+      }
     }
   }
 }

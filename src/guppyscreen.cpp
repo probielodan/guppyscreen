@@ -193,7 +193,6 @@ void GuppyScreen::loop() {
 #if !defined(SIMULATOR) && !defined(OS_ANDROID)
   std::atomic_bool is_sleeping(false);
   Config *conf = Config::get_instance();
-  int32_t display_sleep = conf->get<int32_t>("/display_sleep_sec") * 1000;
 #endif
 
   while (1) {
@@ -201,7 +200,8 @@ void GuppyScreen::loop() {
     lv_timer_handler();
     lv_lock.unlock();
 
-#if !defined(SIMULATOR) && !defined(OS_ANDROID)
+  #if !defined(SIMULATOR) && !defined(OS_ANDROID)
+    int32_t display_sleep = conf->get<int32_t>("/display_sleep_sec") * 1000;
     if (display_sleep != -1) {
       if (lv_disp_get_inactive_time(NULL) > display_sleep) {
         if (!is_sleeping.load()) {
@@ -222,7 +222,7 @@ void GuppyScreen::loop() {
     }
 #endif  // SIMULATOR/OS_ANDROID
 
-    usleep(5000);
+    usleep(10000);
   }
 }
 

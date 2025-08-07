@@ -36,24 +36,19 @@ std::vector<std::string> SysInfoPanel::themes = {
   "yellow"
 };
 
-static std::map<int32_t, uint32_t> sleepsec_to_dd_idx = {
-  {-1, 0}, // never
-  {30, 1}, // 30 sec
-  {60, 2}, // 1 min
-  {300, 3}, // 5 min
-  {600, 4}, // 10 min
-  {1800, 5}, // 30 min
-  {3600, 6}, // 1 hour
+struct SleepOption {
+  const char *label;
+  int32_t seconds;
 };
 
-static std::map<std::string, uint32_t> sleep_label_to_sec = {
-  {"Never", -1}, // never
-  {"30 Seconds", 30}, // 30 sec
-  {"1 Minute", 60}, // 1 min
-  {"5 Minutes", 300}, // 5 min
-  {"10 Minutes", 600}, // 10 min
-  {"30 Minutes", 1800}, // 30 min
-  {"1 Hour", 3600}, // 1 hour
+static const SleepOption sleep_options[] = {
+  {"Never", -1},
+  {"30 Seconds", 30},
+  {"1 Minute", 60},
+  {"5 Minutes", 300},
+  {"10 Minutes", 600},
+  {"30 Minutes", 1800},
+  {"1 Hour", 3600}
 };
 
 SysInfoPanel::SysInfoPanel()
@@ -108,23 +103,27 @@ SysInfoPanel::SysInfoPanel()
   lv_label_set_text(l, "Display Sleep");
   lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
   lv_obj_align(display_sleep_dd, LV_ALIGN_RIGHT_MID, 0, 0);
-  lv_dropdown_set_options(display_sleep_dd,
-    "Never\n"
-    "30 Seconds\n"
-    "1 Minute\n"
-    "5 Minutes\n"
-    "10 Minutes\n"
-    "30 Minutes\n"
-    "1 Hour");
+
+  std::string dd_options;
+  for (const auto &opt : sleep_options) {
+    dd_options += opt.label;
+    dd_options += '\n';
+  }
+  dd_options.pop_back();
+
+  lv_dropdown_set_options(display_sleep_dd, dd_options.c_str());
 
   auto v = conf->get_json("/display_sleep_sec");
   if (!v.is_null()) {
     auto sleep_sec = v.template get<int32_t>();
-    const auto &el = sleepsec_to_dd_idx.find(sleep_sec);
-    if (el != sleepsec_to_dd_idx.end()) {
-      lv_dropdown_set_selected(display_sleep_dd, el->second);
+    for (size_t i = 0; i < std::size(sleep_options); ++i) {
+      if (sleep_options[i].seconds == sleep_sec) {
+        lv_dropdown_set_selected(display_sleep_dd, i);
+        break;
+      }
     }
   }
+
   lv_obj_add_event_cb(display_sleep_dd, &SysInfoPanel::_handle_callback,
     LV_EVENT_VALUE_CHANGED, this);
 
@@ -180,11 +179,11 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_set_style_pad_all(z_icon_toggle_cont, 0, 0);
 
   l = lv_label_create(z_icon_toggle_cont);
-  lv_label_set_text(l, "Invert Z Icon");
+  lv_label_set_text(l, "Invert Z Direction");
   lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
   lv_obj_align(z_icon_toggle, LV_ALIGN_RIGHT_MID, 0, 0);
 
-  v = conf->get_json("/invert_z_icon");
+  v = conf->get_json("/invert_z_direction");
   if (!v.is_null()) {
     if (v.template get<bool>()) {
       lv_obj_add_state(z_icon_toggle, LV_STATE_CHECKED);
@@ -281,16 +280,18 @@ void SysInfoPanel::handle_callback(lv_event_t *e)
     } else if (obj == display_sleep_dd) {
       char buf[64];
       lv_dropdown_get_selected_str(display_sleep_dd, buf, sizeof(buf));
-      std::string sleep_label = std::string(buf);
-      const auto &el = sleep_label_to_sec.find(sleep_label);
-      if (el != sleep_label_to_sec.end())
-      {
-        conf->set<int32_t>("/display_sleep_sec", el->second);
-        conf->save();
+      std::string selected_label = buf;
+
+      for (const auto &opt : sleep_options) {
+        if (opt.label == selected_label) {
+          conf->set<int32_t>("/display_sleep_sec", opt.seconds);
+          conf->save();
+          break;
+        }
       }
     } else if (obj == z_icon_toggle) {
       bool inverted = lv_obj_has_state(z_icon_toggle, LV_STATE_CHECKED);
-      conf->set<bool>("/invert_z_icon", inverted);
+      conf->set<bool>("/invert_z_direction", inverted);
       conf->save();
     } else if (obj == theme_dd) {
       auto idx = lv_dropdown_get_selected(theme_dd);
