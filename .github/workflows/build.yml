@@ -64,7 +64,7 @@ jobs:
         echo "GUPPYSCREEN_VERSION=nightly-${{ github.sha }}" >> $GITHUB_ENV
 
     - if: startsWith(github.ref, 'refs/tags/')
-      name: set guppyscreen nightly version
+      name: set guppyscreen release version
       run: |
         echo "GUPPYSCREEN_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
 
