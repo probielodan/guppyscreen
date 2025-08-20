@@ -25,7 +25,7 @@ if [ "$ARCH" = "mips" ] && [ -f /sys/class/graphics/fb0/virtual_size ]; then
 	printf "${green}Using smallscreen version ${white}\n"
 	ASSET_NAME="guppyscreen-smallscreen"
     fi
-    
+
 else
     printf "${red}Unable to find compatible platform/screen size (found platform: $ARCH) ${white}\n"
     exit 1
@@ -67,7 +67,7 @@ GCODE_SHELL_CMD=$KLIPPY_EXTRA_DIR/gcode_shell_command.py
 SHAPER_CONFIG=$KLIPPY_EXTRA_DIR/calibrate_shaper_config.py
 
 K1_CONFIG_FILE=`curl localhost:7125/printer/info 2> /dev/null | jq -r .result.config_file`
-if [ -z "$K1_CONFIG_FILE" -o x"$K1_CONFIG_FILE" == x"null" ]; then    
+if [ -z "$K1_CONFIG_FILE" -o x"$K1_CONFIG_FILE" == x"null" ]; then
     K1_CONFIG_DIR=/usr/data/printer_data/config
     printf "${green} Falling back to config dir: $K1_CONFIG_DIR ${white}\n"
 else
@@ -82,11 +82,11 @@ rm -rf /root/.cache
 wget -q --no-check-certificate https://raw.githubusercontent.com/ballaswag/k1-discovery/main/bin/curl -O /tmp/curl
 chmod +x /tmp/curl
 
-ASSET_URL="https://github.com/ballaswag/guppyscreen/releases/latest/download/$ASSET_NAME.tar.gz"
+ASSET_URL="https://github.com/probielodan/guppyscreen/releases/latest/download/$ASSET_NAME.tar.gz"
 
 if [ "$1" = "nightly" ] || [ "$2" = "nightly" ]; then
     printf "${yellow}Installing nightly build ${white}\n"
-    ASSET_URL="https://github.com/ballaswag/guppyscreen/releases/download/nightly/$ASSET_NAME.tar.gz"
+    ASSET_URL="https://github.com/probielodan/guppyscreen/releases/download/nightly/$ASSET_NAME.tar.gz"
 fi
 
 printf "${green} Downloading asset: $ASSET_NAME.tar.gz ${white}\n"
@@ -158,7 +158,7 @@ fi
 ## dropbear early to ensure ssh is started with display-server
 cp $K1_GUPPY_DIR/k1_mods/S50dropbear /etc/init.d/S50dropbear
 
-printf "${white}=== Do you want to disable all Creality services (revertable) with GuppyScreen installation? ===\n"
+printf "${white}=== Do you want to disable all Creality services (revertible) with GuppyScreen installation? ===\n"
 printf "${green}  Pros: Frees up system resources on your K1 for critical services such as Klipper (Recommended)\n"
 printf "${white}  Cons: Disabling all Creality services breaks Creality Cloud/Creality Slicer.\n\n"
 printf "Disable all Creality Services? (y/n): "
@@ -199,7 +199,7 @@ ln -sf $K1_GUPPY_DIR/k1_mods/respawn/librc.so.1 /lib/librc.so.1
 sync
 
 if [ ! -f $K1_GUPPY_DIR/guppyscreen ]; then
-    printf "${red}Installation failed, did not find guppyscreen in $K1_GUPPY_DIR. Make sure to extract the guppyscreen directory in /usr/data. ${white}\n" 
+    printf "${red}Installation failed, did not find guppyscreen in $K1_GUPPY_DIR. Make sure to extract the guppyscreen directory in /usr/data. ${white}\n"
     exit 1
 fi
 

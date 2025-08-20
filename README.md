@@ -2,20 +2,20 @@
 
 Guppy Screen is a touch UI for Klipper using APIs exposed by Moonraker. It builds on LVGL as a standalone executable, has no dependency on any display servers such as X/Wayland.
 <p align="center">
-    <a aria-label="Downloads" href="https://github.com/ballaswag/guppyscreen/releases">
-      <img src="https://img.shields.io/github/downloads/ballaswag/guppyscreen/total?style=flat-square">
+    <a aria-label="Downloads" href="https://github.com/probielodan/guppyscreen/releases">
+      <img src="https://img.shields.io/github/downloads/probielodan/guppyscreen/total?style=flat-square">
   </a>
-    <a aria-label="Stars" href="https://github.com/ballaswag/guppyscreen/stargazers">
-      <img src="https://img.shields.io/github/stars/ballaswag/guppyscreen?style=flat-square">
+    <a aria-label="Stars" href="https://github.com/probielodan/guppyscreen/stargazers">
+      <img src="https://img.shields.io/github/stars/probielodan/guppyscreen?style=flat-square">
   </a>
-    <a aria-label="Forks" href="https://github.com/ballaswag/guppyscreen/network/members">
-      <img src="https://img.shields.io/github/forks/ballaswag/guppyscreen?style=flat-square">
+    <a aria-label="Forks" href="https://github.com/probielodan/guppyscreen/network/members">
+      <img src="https://img.shields.io/github/forks/probielodan/guppyscreen?style=flat-square">
   </a>
-    <a aria-label="License" href="https://github.com/ballaswag/guppyscreen/blob/develop/LICENSE">
-      <img src="https://img.shields.io/github/license/ballaswag/guppyscreen?style=flat-square">
+    <a aria-label="License" href="https://github.com/probielodan/guppyscreen/blob/develop/LICENSE">
+      <img src="https://img.shields.io/github/license/probielodan/guppyscreen?style=flat-square">
   </a>
-    <a aria-label="Last commit" href="https://github.com/ballswag/guppyscreen/commits/">
-      <img src="https://img.shields.io/github/last-commit/ballaswag/guppyscreen?style=flat-square">
+    <a aria-label="Last commit" href="https://github.com/probielodan/guppyscreen/commits/">
+      <img src="https://img.shields.io/github/last-commit/probielodan/guppyscreen?style=flat-square">
   </a>
 </p>
 
@@ -24,68 +24,68 @@ Run the following interactive script via SSH on your K1/Max/CR-10 SE/Ender 3 V3 
 
 #### Material Design Theme
 ```
-sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/ballaswag/guppyscreen/main/installer.sh)"
+sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/probielodan/guppyscreen/main/scripts/installer.sh)"
 ```
 
 #### Z-Bolt Theme (Only for the K1/Max)
 ```
-sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/ballaswag/guppyscreen/main/installer.sh)" -s zbolt
+sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/probielodan/guppyscreen/main/scripts/installer.sh)" -s zbolt
 ```
 
 ### Install on a PI (Debian/Raspbian)
 Tested on a BTT Pad 7. Please install with care and make sure you're okay with resetting your setup if things break.
 ```
-wget -O - https://raw.githubusercontent.com/ballaswag/guppyscreen/main/installer-deb.sh | bash
+wget -O - https://raw.githubusercontent.com/probielodan/guppyscreen/main/scripts/installer-deb.sh | bash
 ```
 
 ### Nightly Builds
 #### Material (Nightly)
 ```
-sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/ballaswag/guppyscreen/main/installer.sh)" -s nightly
+sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/probielodan/guppyscreen/main/scripts/installer.sh)" -s nightly
 ```
 
 #### Z-Bolt (Nightly)
 ```
-sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/ballaswag/guppyscreen/main/installer.sh)" -s zbolt nightly
+sh -c "$(wget --no-check-certificate -qO - https://raw.githubusercontent.com/probielodan/guppyscreen/main/scripts/installer.sh)" -s zbolt nightly
 ```
 
 #### Raspbian Variant (Nightly)
 ```
-wget -O - https://raw.githubusercontent.com/ballaswag/guppyscreen/main/installer-deb.sh | bash -s nightly
+wget -O - https://raw.githubusercontent.com/probielodan/guppyscreen/main/scripts/installer-deb.sh | bash -s nightly
 ```
 
 ### Android
-Guppy Screen works on Android! Download and try with the latest [APK](https://github.com/ballaswag/guppyscreen/releases/latest/download/app-release.apk).  
-  
-<img src="https://github.com/ballaswag/guppyscreen/assets/145094472/d0437cd6-9b82-470f-8889-c4a5b74bfa6e" alt="guppyscreen on android" width="600" />
+Guppy Screen works on Android! Download and try with the latest [APK](https://github.com/probielodan/guppyscreen/releases/latest/download/app-release.apk).
+
+![Guppyscreen on Android](https://github.com/probielodan/guppyscreen/blob/main/screenshots/android/guppy_android.png)
 
 ## Uninstall
-ssh into your K1/Max and run the follwow command:
+ssh into your K1/Max and run the following command:
 ```
 /usr/data/guppyscreen/reinstall-creality.sh
 ```
 
 ## Features
-:white_check_mark: Console/Macro Shell  
-:white_check_mark: Bedmesh  
-:white_check_mark: Input Shaper (PSD graphs)  
-:white_check_mark: Belt Calibration/Excitate  
-:white_check_mark: Print Status  
-:white_check_mark: Spoolman Integration  
-:white_check_mark: Extrude/Retract  
-:white_check_mark: Temperature Control  
-:white_check_mark: Fans/LED/Move Control  
-:white_check_mark: Fine Tune (speed, flow, z-offset, Pressure Advance)  
-:white_check_mark: Limits (Velocity, Acel, Square Corner Velocity, etc.)  
-:white_check_mark: File Browser  
-:white_check_mark: Supports multiple screen resolutions  
-:white_check_mark: Cross platform releases (MIPS/ARM/x86)  
-:white_check_mark: TMC Metrics  
-:white_check_mark: Multi-Printer support  
+:white_check_mark: Console/Macro Shell\
+:white_check_mark: Bedmesh\
+:white_check_mark: Input Shaper (PSD graphs)\
+:white_check_mark: Belt Calibration/Excitate\
+:white_check_mark: Print Status\
+:white_check_mark: Spoolman Integration\
+:white_check_mark: Extrude/Retract\
+:white_check_mark: Temperature Control\
+:white_check_mark: Fans/LED/Move Control\
+:white_check_mark: Fine Tune (speed, flow, z-offset, Pressure Advance)\
+:white_check_mark: Limits (Velocity, Acel, Square Corner Velocity, etc.)\
+:white_check_mark: File Browser\
+:white_check_mark: Supports multiple screen resolutions\
+:white_check_mark: Cross platform releases (MIPS/ARM/x86)\
+:white_check_mark: TMC Metrics\
+:white_check_mark: Multi-Printer support
 
 ## Roadmap
-:bangbang: Exclude Object  
-:bangbang: Firmware Retraction  
+:bangbang: Exclude Object\
+:bangbang: Firmware Retraction
 
 Open for feature requests.
 
@@ -94,9 +94,9 @@ You can find various Guppy Screen documents [here](https://ballaswag.github.io/d
 
 ## Screenshot
 ### Material Theme
-![Material Theme Guppy Screen](https://github.com/ballaswag/guppyscreen/blob/main/screenshots/material/material_screenshot.png)
+![Material Theme Guppy Screen](https://github.com/probielodan/guppyscreen/blob/main/screenshots/material/material_screenshot.png)
 
-Earlier development screenshots can be found [here](https://github.com/ballaswag/guppyscreen/blob/main/screenshots)
+Earlier development screenshots can be found [here](https://github.com/probielodan/guppyscreen/blob/main/screenshots)
 
 ## Video Demo
 https://www.reddit.com/r/crealityk1/comments/17jp59g/new_touch_ui_for_the_k1/
@@ -107,9 +107,10 @@ or
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/ballaswag)
 
 ## Credits
-[Material Design Icons](https://pictogrammers.com/library/mdi/)  
-[Z-Bolt Icons](https://github.com/Z-Bolt/OctoScreen)  
-[Moonraker](https://github.com/Arksine/moonraker)  
-[KlipperScreen](https://github.com/KlipperScreen/KlipperScreen)  
-[Fluidd](https://github.com/fluidd-core/fluidd)  
-[Klippain-shaketune](https://github.com/Frix-x/klippain-shaketune)  
+[Guppyscreen](https://github.com/ballaswag/guppyscreen/) |
+[Material Design Icons](https://pictogrammers.com/library/mdi/) |
+[Z-Bolt Icons](https://github.com/Z-Bolt/OctoScreen) |
+[Moonraker](https://github.com/Arksine/moonraker) |
+[KlipperScreen](https://github.com/KlipperScreen/KlipperScreen) |
+[Fluidd](https://github.com/fluidd-core/fluidd) |
+[Klippain-shaketune](https://github.com/Frix-x/klippain-shaketune)

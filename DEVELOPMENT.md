@@ -45,7 +45,7 @@ To build guppyscreen for Mipsel (Ingenic X2000E) - specific to the K1 SoC, you w
 
 Clone the guppyscreen repo (and submodules) and apply a couple of patches locally.
 
-1. `git clone --recursive https://github.com/ballaswag/guppyscreen && cd guppyscreen`
+1. `git clone --recursive https://github.com/probielodan/guppyscreen && cd guppyscreen`
 2. `(cd lv_drivers/ && git apply ../patches/0001-lv_driver_fb_ioctls.patch)`
 3. `(cd spdlog/ && git apply ../patches/0002-spdlog_fmt_initializer_list.patch)`
 
@@ -102,7 +102,7 @@ Note: Guppy Screen currently requires running as `root` because it directly inte
 ### Virtual Klipper
 
 It is possible to use https://github.com/mainsail-crew/virtual-klipper-printer to start a virtual printer locally
-to make local testing and development easier.   You will need to install docker-ce and docker-compose locally.   
+to make local testing and development easier.   You will need to install docker-ce and docker-compose locally.
 
 ### Install Docker and Docker Compose
 

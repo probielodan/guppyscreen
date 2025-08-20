@@ -2,7 +2,7 @@ name: guppy build
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches: [ "main", "develop" ]
     tags:
       - "*"
 
@@ -46,13 +46,13 @@ jobs:
     container:
       image: ballaswag/guppydev:latest
       options: --user 1001
-  
+
     env:
       CROSS_COMPILE: ${{ matrix.arch }}
       CC: ${{ matrix.arch }}
       CXX: ${{ matrix.arch }}
       GUPPY_THEME: ${{ matrix.theme }}
-  
+
     steps:
     - uses: actions/checkout@v3
       with:
@@ -103,7 +103,7 @@ jobs:
 
     - name: make libhv
       run: make libhv.a
-    
+
     - name: make libspdlog
       run: make libspdlog.a
 
@@ -115,8 +115,8 @@ jobs:
 
     - name: package release
       run: |
-        chmod +x ./release.sh
-        ./release.sh ${{ matrix.asset }}
+        chmod +x ./scripts/release.sh
+        ./scripts/release.sh ${{ matrix.asset }}
 
     - uses: actions/upload-artifact@v4
       with:

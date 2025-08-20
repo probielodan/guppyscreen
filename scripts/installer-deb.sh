@@ -35,15 +35,15 @@ get_klipper_paths() {
 
 
     CONFIG_FILE=`curl -s localhost:7125/printer/info | jq -r .result.config_file`
-    if [ "$CONFIG_FILE" = "null" ]; then    
+    if [ "$CONFIG_FILE" = "null" ]; then
 	printf "${green} Falling back to config dir: $CONFIG_DIR ${white}\n"
     fi
 
     CONFIG_DIR=$(dirname "$CONFIG_FILE")
-    PRINTER_DATA_DIR=$(dirname "$CONFIG_DIR")    
+    PRINTER_DATA_DIR=$(dirname "$CONFIG_DIR")
     printf "${green} Found config dir: $CONFIG_DIR ${white}\n"
     printf "${green} Found printer_data dir: $PRINTER_DATA_DIR ${white}\n"
-    
+
 }
 
 install_services() {
@@ -52,7 +52,7 @@ install_services() {
     sudo cp ${HOME}/guppyscreen/debian/disable_blinking_cursor.service /etc/systemd/system
     sudo cp ${HOME}/guppyscreen/debian/guppyscreen.service /etc/systemd/system
     sudo systemctl enable disable_blinking_cursor.service
-    sudo systemctl enable guppyscreen.service    
+    sudo systemctl enable guppyscreen.service
     printf "${green}Configuring guppyscreen services ${white}\n"
 
     sudo systemctl disable KlipperScreen.service
@@ -78,7 +78,7 @@ install_guppy_goodies() {
     sed -i "s|<CONFIG_DIR>|$CONFIG_DIR|g; s|<KLIPPER_PATH>|$KLIPPER_PATH|g" $GUPPY_DIR/debian/guppy_cmd.cfg
     cp $GUPPY_DIR/debian/*.cfg $CONFIG_DIR/GuppyScreen
     cp $GUPPY_DIR/scripts/*.py $CONFIG_DIR/GuppyScreen/scripts
-    
+
     if grep -q "include GuppyScreen" $CONFIG_DIR/printer.cfg ; then
 	echo "printer.cfg already includes GuppyScreen cfgs"
     else
@@ -87,7 +87,7 @@ install_guppy_goodies() {
     fi
 
     sed -i "s|<GUPPY_DIR>|$GUPPY_DIR|g; s|<PRINTER_DATA_DIR>|$PRINTER_DATA_DIR|g" $GUPPY_DIR/debian/guppyconfig.json
-    
+
     cp $GUPPY_DIR/debian/guppyconfig.json $GUPPY_DIR
     mkdir $GUPPY_DIR/thumbnails
 }
@@ -105,12 +105,12 @@ echo "Found arch $ARCH"
 if [ "$ARCH" = "aarch64" ]; then
     printf "${green}Installing Guppy Screen ${white}\n"
 
-    ASSET_URL="https://github.com/ballaswag/guppyscreen/releases/latest/download/guppyscreen-arm.tar.gz"
+    ASSET_URL="https://github.com/probielodan/guppyscreen/releases/latest/download/guppyscreen-arm.tar.gz"
     if [ "$1" = "nightly" ]; then
         printf "${yellow}Installing nightly build ${white}\n"
-        ASSET_URL="https://github.com/ballaswag/guppyscreen/releases/download/nightly/guppyscreen-arm.tar.gz"
+        ASSET_URL="https://github.com/probielodan/guppyscreen/releases/download/nightly/guppyscreen-arm.tar.gz"
     fi
-    
+
     curl -s -L $ASSET_URL -o /tmp/guppyscreen.tar.gz
     tar xf /tmp/guppyscreen.tar.gz -C ${HOME}
 
