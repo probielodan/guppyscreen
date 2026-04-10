@@ -14,6 +14,7 @@
 namespace fs = std::experimental::filesystem;
 
 LV_IMG_DECLARE(back);
+LV_IMG_DECLARE(cancel);
 
 #ifdef GUPPYSCREEN_VERSION
 #define GS_VERSION GUPPYSCREEN_VERSION
@@ -79,6 +80,15 @@ SysInfoPanel::SysInfoPanel()
   , theme_dd(lv_dropdown_create(theme_cont))
   , theme(0)
 
+  , def_temp_cont(lv_obj_create(left_cont))
+  , def_temp_dd(lv_dropdown_create(def_temp_cont))
+
+  , factory_reset_btn(cont, &cancel, "Factory\nReset", &SysInfoPanel::_handle_callback, this, "Reset GuppyScreen to default settings?", [](){
+      Config *conf = Config::get_instance();
+      fs::remove(conf->get_path());
+      spdlog::warn("Factory reset performed. Deleting config and exiting.");
+      exit(0);
+    })
   , back_btn(cont, &back, "Back", &SysInfoPanel::_handle_callback, this)
 {
   lv_obj_move_background(cont);
@@ -221,6 +231,26 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_add_event_cb(theme_dd, &SysInfoPanel::_handle_callback,
     LV_EVENT_VALUE_CHANGED, this);
 
+  // default extruder temp
+  lv_obj_set_size(def_temp_cont, LV_PCT(100), LV_SIZE_CONTENT);
+  lv_obj_set_style_pad_all(def_temp_cont, 0, 0);
+  l = lv_label_create(def_temp_cont);
+  lv_label_set_text(l, "Def. Extruder Temp");
+  lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
+  lv_obj_align(def_temp_dd, LV_ALIGN_RIGHT_MID, 0, 0);
+  lv_dropdown_set_options(def_temp_dd, "180\n200\n220\n240\n260\n280\n300");
+  auto def_ext_temp = conf->get_json("/default_extruder_temp");
+  if (!def_ext_temp.is_null()) {
+    std::string val = std::to_string(def_ext_temp.template get<int>());
+    int32_t idx = lv_dropdown_get_option_index(def_temp_dd, val.c_str());
+    if (idx != -1) {
+      lv_dropdown_set_selected(def_temp_dd, idx);
+    }
+  }
+  lv_obj_add_event_cb(def_temp_dd, &SysInfoPanel::_handle_callback, LV_EVENT_VALUE_CHANGED, this);
+
+  lv_obj_add_flag(factory_reset_btn.get_container(), LV_OBJ_FLAG_FLOATING);
+  lv_obj_align(factory_reset_btn.get_container(), LV_ALIGN_BOTTOM_LEFT, 0, 0);
 
   lv_obj_add_flag(back_btn.get_container(), LV_OBJ_FLAG_FLOATING);
   lv_obj_align(back_btn.get_container(), LV_ALIGN_BOTTOM_RIGHT, 0, 0);
@@ -304,6 +334,11 @@ void SysInfoPanel::handle_callback(lv_event_t *e)
         ThemeConfig::get_instance()->init(theme_config);
         GuppyScreen::refresh_theme();
       }
+    } else if (obj == def_temp_dd) {
+      char buf[64];
+      lv_dropdown_get_selected_str(def_temp_dd, buf, sizeof(buf));
+      conf->set<int>("/default_extruder_temp", std::stoi(buf));
+      conf->save();
     }
   }
 }

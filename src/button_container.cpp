@@ -45,18 +45,18 @@ ButtonContainer::ButtonContainer(lv_obj_t *parent,
 
     lv_obj_add_event_cb(btn_cont, cb, LV_EVENT_CLICKED, user_data);
   } else if (cb != NULL && pcb) {
-    if (prompt_estop) {
+    if (prompt_text == "Do you want to emergency stop?" && !prompt_estop) {
+      lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_PRESSED, this);
+      lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_RELEASED, this);
+
+      lv_obj_add_event_cb(btn_cont, cb, LV_EVENT_CLICKED, user_data);
+    } else {
       lv_obj_add_event_cb(btn_cont, [](lv_event_t *e) {
         lv_event_code_t code = lv_event_get_code(e);
         if (code == LV_EVENT_CLICKED) {
           ((ButtonContainer *)e->user_data)->handle_prompt();
         }
         }, LV_EVENT_CLICKED, this);
-    } else {
-      lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_PRESSED, this);
-      lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_RELEASED, this);
-
-      lv_obj_add_event_cb(btn_cont, cb, LV_EVENT_CLICKED, user_data);
     }
   }
 

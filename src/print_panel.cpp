@@ -324,7 +324,7 @@ void PrintPanel::show_file_detail(Tree *f) {
     } else {
       spdlog::trace("getting metadata for {}", f->name);
       ws.send_jsonrpc("server.files.metadata",
-        json::parse(R"({"filename":")" + f->full_path + R"("})"),
+        json{{"filename", f->full_path}},
         [f, this](json &d) { this->handle_metadata(f, d); });
     }
   }

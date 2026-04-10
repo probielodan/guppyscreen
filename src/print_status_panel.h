@@ -27,7 +27,7 @@ class PrintStatusPanel : public NotifyConsumer {
 
   void handle_metadata(const std::string &gcode_file, json &j);
   void handle_callback(lv_event_t *event);
-  
+
   static void _handle_callback(lv_event_t *event) {
     PrintStatusPanel *panel = (PrintStatusPanel*)event->user_data;
     panel->handle_callback(event);
@@ -63,6 +63,7 @@ class PrintStatusPanel : public NotifyConsumer {
 
   ImageLabel extruder_temp;
   ImageLabel bed_temp;
+  ImageLabel chamber_temp;
   ImageLabel print_speed;
   ImageLabel z_offset;
   ImageLabel flow_rate;
@@ -83,6 +84,7 @@ class PrintStatusPanel : public NotifyConsumer {
   double flow;
   int extruder_target;
   int heater_bed_target;
+  int chamber_target;
   json current_file;
 
   std::map<std::string, int> fan_speeds;

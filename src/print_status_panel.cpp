@@ -13,6 +13,7 @@ LV_IMG_DECLARE(hourglass);
 LV_IMG_DECLARE(bed);
 LV_IMG_DECLARE(home_z);
 LV_IMG_DECLARE(fan);
+LV_IMG_DECLARE(heater);
 LV_IMG_DECLARE(layers_img);
 
 LV_IMG_DECLARE(fine_tune_img);
@@ -57,6 +58,7 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   , detail_cont(lv_obj_create(status_cont))
   , extruder_temp(detail_cont, &extruder, 100, "20")
   , bed_temp(detail_cont, &bed, 100, "21")
+  , chamber_temp(detail_cont, &heater, 100, "22")
   , print_speed(detail_cont, &speed_up_img, 100, "0 mm/s")
   , z_offset(detail_cont, &home_z, 100, "0.0 mm")
   , flow_rate(detail_cont, &extrude, 100, "0.0 mm3/s")
@@ -68,6 +70,7 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   , filament_diameter(1.75) // XXX: check config
   , extruder_target(-1)
   , heater_bed_target(-1)
+  , chamber_target(-1)
 {
   lv_obj_move_background(status_cont);
   lv_obj_clear_flag(status_cont, LV_OBJ_FLAG_SCROLLABLE);
@@ -86,19 +89,20 @@ PrintStatusPanel::PrintStatusPanel(KWebSocketClient &websocket_client,
   lv_obj_set_grid_cell(bed_temp.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 0, 1);
 
   //detail containter row 2
-  lv_obj_set_grid_cell(print_speed.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
-  lv_obj_set_grid_cell(z_offset.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  lv_obj_set_grid_cell(chamber_temp.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
+  lv_obj_set_grid_cell(print_speed.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
 
   //detail containter row 3
-  lv_obj_set_grid_cell(flow_rate.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
-  lv_obj_set_grid_cell(layers.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+  lv_obj_set_grid_cell(z_offset.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
+  lv_obj_set_grid_cell(flow_rate.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 2, 1);
 
   //detail containter row 4
-  lv_obj_set_grid_cell(elapsed.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
-  lv_obj_set_grid_cell(fan0.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
+  lv_obj_set_grid_cell(layers.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
+  lv_obj_set_grid_cell(elapsed.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
 
   //detail containter row 5
-  lv_obj_set_grid_cell(time_left.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
+  lv_obj_set_grid_cell(fan0.get_container(), LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
+  lv_obj_set_grid_cell(time_left.get_container(), LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_STRETCH, 4, 1);
   // lv_obj_set_grid_cell(fan2.get_container(), LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 4, 1);
 
   static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(1), LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -266,6 +270,23 @@ void PrintStatusPanel::populate() {
   if (!v.is_null()) {
     z_offset.update_label(fmt::format("{:.5} mm", v.template get<double>()).c_str());
   }
+
+  auto v_target = s->get_data("/printer_state/extruder/target"_json_pointer);
+  if (!v_target.is_null()) extruder_target = v_target.template get<int>();
+
+  v_target = s->get_data("/printer_state/heater_bed/target"_json_pointer);
+  if (!v_target.is_null()) heater_bed_target = v_target.template get<int>();
+
+  std::string chamber_id = "temperature_sensor chamber_temp";
+  json display_sensors = s->get_display_sensors();
+  for (auto& item : display_sensors.items()) {
+    if (item.value().contains("display_name") && item.value()["display_name"] == "Chamber") {
+      chamber_id = item.key();
+      break;
+    }
+  }
+  v_target = s->get_data(json::json_pointer(fmt::format("/printer_state/{}/target", chamber_id)));
+  if (!v_target.is_null()) chamber_target = v_target.template get<int>();
 }
 
 void PrintStatusPanel::handle_metadata(const std::string &gcode_file, json &j) {
@@ -364,6 +385,37 @@ void PrintStatusPanel::consume(json &j) {
     }
   }
 
+  bool chamber_temp_found = false;
+  int parsed_chamber_temp = 0;
+
+  std::string chamber_id = "temperature_sensor chamber_temp";
+  json display_sensors = State::get_instance()->get_display_sensors();
+  for (auto& item : display_sensors.items()) {
+    if (item.value().contains("display_name") && item.value()["display_name"] == "Chamber") {
+      chamber_id = item.key();
+      break;
+    }
+  }
+
+  // Use the exact configured chamber_id, which handles both target and temperature
+  auto target_ptr = json::json_pointer(fmt::format("/params/0/{}/target", chamber_id));
+  if (j.contains(target_ptr)) {
+    chamber_target = j[target_ptr].template get<int>();
+  }
+
+  auto temp_ptr = json::json_pointer(fmt::format("/params/0/{}/temperature", chamber_id));
+  if (j.contains(temp_ptr)) {
+    parsed_chamber_temp = j[temp_ptr].template get<int>();
+    chamber_temp_found = true;
+  }
+
+  if (chamber_temp_found) {
+    if (chamber_target > 0) {
+      chamber_temp.update_label(fmt::format("{} / {}", parsed_chamber_temp, chamber_target).c_str());
+    } else {
+      chamber_temp.update_label(fmt::format("{}", parsed_chamber_temp).c_str());
+    }
+  }
   // speed
   auto speed = j["/params/0/motion_report/live_velocity"_json_pointer];
   if (!speed.is_null()) {

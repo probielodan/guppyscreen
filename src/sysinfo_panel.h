@@ -43,6 +43,10 @@ class SysInfoPanel {
   lv_obj_t *theme_dd;
   uint32_t theme;
 
+  lv_obj_t *def_temp_cont;
+  lv_obj_t *def_temp_dd;
+
+  ButtonContainer factory_reset_btn;
   ButtonContainer back_btn;
 
   static std::vector<std::string> log_levels;

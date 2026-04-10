@@ -25,7 +25,7 @@ ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
   , extruder_temp(ws, panel_cont, &extruder, 150,
     "Extruder", lv_palette_main(LV_PALETTE_RED), false, true, numpad, "extruder", NULL, NULL)
   , temp_selector(panel_cont, "Extruder Temperature (C)",
-    {"180", "190", "200", "210", "220", "230", "240", ""}, 6, &ExtruderPanel::_handle_callback, this)
+    {"180", "200", "220", "240", "260", "280", "300", ""}, 3, &ExtruderPanel::_handle_callback, this)
   , length_selector(panel_cont, "Extrude Length (mm)",
     {"5", "10", "15", "20", "25", "30", "35", ""}, 1, &ExtruderPanel::_handle_callback, this)
   , speed_selector(panel_cont, "Extrude Speed (mm/s)",
@@ -126,6 +126,18 @@ ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
 
 
   ws.register_notify_update(this);
+
+  auto def_ext_temp_v = conf->get_json("/default_extruder_temp");
+  if (!def_ext_temp_v.is_null()) {
+    int def_temp = def_ext_temp_v.template get<int>();
+    int temps[] = {180, 200, 220, 240, 260, 280, 300};
+    for (int i = 0; i < 7; i++) {
+      if (temps[i] == def_temp) {
+        temp_selector.set_selected_idx(i);
+        break;
+      }
+    }
+  }
 }
 
 ExtruderPanel::~ExtruderPanel() {

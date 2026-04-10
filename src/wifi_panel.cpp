@@ -119,7 +119,12 @@ void WifiPanel::foreground() {
   spdlog::trace("wifi panel fg");
   lv_obj_move_foreground(cont);
   lv_obj_clear_flag(spinner, LV_OBJ_FLAG_HIDDEN);
-  wpa_event.send_command("SCAN");
+  std::string resp = wpa_event.send_command("SCAN");
+  if (resp.empty() || resp.find("FAIL") != std::string::npos) {
+    lv_obj_add_flag(spinner, LV_OBJ_FLAG_HIDDEN);
+    lv_label_set_text(wifi_label, "Failed to start wifi scan.\nIs wpa_supplicant running?");
+    lv_obj_clear_flag(prompt_cont, LV_OBJ_FLAG_HIDDEN);
+  }
 }
 
 void WifiPanel::handle_back_btn(lv_event_t *e) {
@@ -145,6 +150,20 @@ void WifiPanel::handle_callback(lv_event_t *e) {
     }
 
     selected_network = lv_table_get_cell_value(wifi_table, row, 0);
+    if (col == 1 && list_networks.count(selected_network)) {
+      auto nid = list_networks.find(selected_network)->second;
+      wpa_event.send_command(fmt::format("REMOVE_NETWORK {}", nid));
+      wpa_event.send_command("SAVE_CONFIG");
+      cur_network.clear();
+      selected_network.clear();
+      lv_obj_add_flag(prompt_cont, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_clear_flag(spinner, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_add_flag(wifi_table, LV_OBJ_FLAG_HIDDEN);
+      lv_label_set_text(wifi_label, "Scanning for networks...");
+      wpa_event.send_command("SCAN");
+      return;
+    }
+
     if (cur_network.length() > 0 && cur_network == selected_network) {
       auto ip = KUtils::interface_ip(KUtils::get_wifi_interface());
       lv_label_set_text(wifi_label, fmt::format("Connected to network {}\nIP: {}",
@@ -202,11 +221,7 @@ void WifiPanel::handle_wpa_event(const std::string &event) {
         auto inserted = wifi_name_db.insert({wifi_parts[4], std::stoi(wifi_parts[2])});
         if (inserted.second) {
           lv_table_set_cell_value(wifi_table, index, 0, wifi_parts[4].c_str());
-          if (cur_network != wifi_parts[4]) {
-            spdlog::trace("adding symbol");
-            lv_table_set_cell_value(wifi_table, index, 1, "");
-            lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
-          } else {
+          if (cur_network == wifi_parts[4]) {
             spdlog::trace("adding symbol with ok");
             lv_table_set_cell_value(wifi_table, index, 1, LV_SYMBOL_CLOSE);
             lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
@@ -216,6 +231,13 @@ void WifiPanel::handle_wpa_event(const std::string &event) {
               ip).c_str());
             lv_obj_add_flag(password_input, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(prompt_cont, LV_OBJ_FLAG_HIDDEN);
+          } else if (list_networks.count(wifi_parts[4])) {
+            lv_table_set_cell_value(wifi_table, index, 1, LV_SYMBOL_CLOSE);
+            lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
+          } else {
+            spdlog::trace("adding symbol");
+            lv_table_set_cell_value(wifi_table, index, 1, "");
+            lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
           }
 
           index++;
@@ -244,11 +266,7 @@ void WifiPanel::handle_wpa_event(const std::string &event) {
       uint32_t index = 0;
       for (const auto &wifi : pairs) {
         lv_table_set_cell_value(wifi_table, index, 0, wifi.first.c_str());
-        if (cur_network != wifi.first) {
-          spdlog::trace("adding symbol");
-          lv_table_set_cell_value(wifi_table, index, 1, "");
-          lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
-        } else {
+        if (cur_network == wifi.first) {
           spdlog::trace("adding symbol with ok");
           lv_table_set_cell_value(wifi_table, index, 1, LV_SYMBOL_CLOSE);
           lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
@@ -258,6 +276,13 @@ void WifiPanel::handle_wpa_event(const std::string &event) {
             ip).c_str());
           lv_obj_add_flag(password_input, LV_OBJ_FLAG_HIDDEN);
           lv_obj_clear_flag(prompt_cont, LV_OBJ_FLAG_HIDDEN);
+        } else if (list_networks.count(wifi.first)) {
+          lv_table_set_cell_value(wifi_table, index, 1, LV_SYMBOL_CLOSE);
+          lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
+        } else {
+          spdlog::trace("adding symbol");
+          lv_table_set_cell_value(wifi_table, index, 1, "");
+          lv_table_set_cell_value(wifi_table, index, 2, LV_SYMBOL_WIFI);
         }
         index++;
       }

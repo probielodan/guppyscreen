@@ -119,7 +119,6 @@ void InitPanel::connected(KWebSocketClient &ws) {
 			    std::lock_guard<std::mutex> lock(this->lv_lock);
 			    lv_obj_add_flag(this->cont, LV_OBJ_FLAG_HIDDEN);
 			    lv_obj_move_background(this->cont);
-					
 			  });
 	}
   });

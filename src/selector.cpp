@@ -81,4 +81,8 @@ uint32_t Selector::get_selected_idx() {
 
 void Selector::set_selected_idx(uint32_t idx) {
   selector_idx = idx;
+  if (btnm != NULL) {
+    lv_btnmatrix_clear_btn_ctrl_all(btnm, LV_BTNMATRIX_CTRL_CHECKED);
+    lv_btnmatrix_set_btn_ctrl(btnm, idx, LV_BTNMATRIX_CTRL_CHECKED);
+  }
 }

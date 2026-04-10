@@ -72,7 +72,8 @@ void Config::init(std::string config_path, const std::string thumbdir) {
         {"log_path", "/usr/data/printer_data/logs/guppyscreen.log"},
         {"thumbnail_path", thumbdir},
         {"wpa_supplicant", "/var/run/wpa_supplicant"},
-        {"display_sleep_sec", 600}
+        {"display_sleep_sec", 600},
+        {"default_extruder_temp", 240}
 #ifndef OS_ANDROID
         , {"default_printer", "k1"},
         {"printers", {{"k1", {
@@ -150,6 +151,11 @@ void Config::init(std::string config_path, const std::string thumbdir) {
   auto &display_sleep = data["/display_sleep_sec"_json_pointer];
   if (display_sleep.is_null()) {
     data["/display_sleep_sec"_json_pointer] = 600;
+  }
+
+  auto &default_ext_temp = data["/default_extruder_temp"_json_pointer];
+  if (default_ext_temp.is_null()) {
+    data["/default_extruder_temp"_json_pointer] = 240;
   }
   
   std::ofstream o(config_path);
